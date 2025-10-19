@@ -1,0 +1,6 @@
+@Plaza_HostAddress = http://localhost:5141
+
+GET {{Plaza_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
