@@ -5,6 +5,7 @@ using PlazaCore.Entites;
 using PlazaCore.ServiceContract;
 using PlazaService.Hotels;
 using Shared.DTO.Hotel;
+using Shared.Security;
 
 namespace Plaza.Controllers
 {
@@ -27,8 +28,18 @@ namespace Plaza.Controllers
             var hotelsResult = _mapper.Map<IEnumerable<HotelDto>>(hotels);
             return Ok(hotelsResult);
         }
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<HotelDto>> GetHotel(int id) { 
+        [HttpGet("{encodedId}")]
+        public async Task<ActionResult<HotelDto>> GetHotel(string encodedId) {
+
+            int id;
+            try
+            {
+                id = IdEncoder.DecodeId(encodedId);
+            }
+            catch
+            {
+                return BadRequest("Invalid hotel ID");
+            }
             var hotel = await _hotelService.GetHotelAsync(id);
             if (hotel == null) return NotFound();
             var hotelResult = _mapper.Map<HotelDto>(hotel);
@@ -52,14 +63,28 @@ namespace Plaza.Controllers
                 return CreatedAtAction(nameof(GetHotel), new { id = createdDto.Id }, createdDto);
             
             }
-            [HttpPut("{id:int}")]
-            public async Task<ActionResult> UpdateHotel(int id , [FromBody] UpdateHotelDTO hotelDto) {
+            [HttpPut("{encodedId}")]
+            public async Task<ActionResult> UpdateHotel(string encodedId, [FromBody] UpdateHotelDTO hotelDto) {
 
-                //if (id != hotelDto.Id )
-                //{
-                //    return BadRequest();
-                //}
-                var existing = await _hotelService.GetHotelAsync(id);
+            //if (id != hotelDto.Id )
+            //{
+            //    return BadRequest();
+            //}
+            int id;
+            try
+            {
+                id = IdEncoder.DecodeId(encodedId);
+            }
+            catch
+            {
+                return BadRequest("Invalid hotel ID");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var existing = await _hotelService.GetHotelAsync(id);
                 if (existing == null)
                     return NotFound();
                 _mapper.Map(hotelDto, existing);
@@ -68,8 +93,17 @@ namespace Plaza.Controllers
                 return NoContent();
             }
 
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> DeleteHotel(int id) {
+        [HttpDelete("{encodedId}")]
+        public async Task<ActionResult> DeleteHotel(string encodedId) {
+            int id;
+            try
+            {
+                id = IdEncoder.DecodeId(encodedId);
+            }
+            catch
+            {
+                return BadRequest("Invalid hotel ID");
+            }
             var hotel = await _hotelService.GetHotelAsync(id);
             if (hotel == null) return NotFound();
             await _hotelService.DeleteHotelAsync(id);

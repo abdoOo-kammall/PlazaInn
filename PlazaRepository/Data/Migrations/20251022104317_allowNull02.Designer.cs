@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlazaRepository;
 
@@ -11,9 +12,11 @@ using PlazaRepository;
 namespace PlazaRepository.Data.Migrations
 {
     [DbContext(typeof(PlazaDbContext))]
-    partial class PlazaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251022104317_allowNull02")]
+    partial class allowNull02
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

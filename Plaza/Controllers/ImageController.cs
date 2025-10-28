@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PlazaCore.ServiceContract;
-using PlazaService.Hotels;
+using Shared.Enums;
 
 namespace Plaza.Controllers
 {
@@ -10,20 +9,45 @@ namespace Plaza.Controllers
     public class ImageController : ControllerBase
     {
         private readonly IImageService _imageService;
+        private readonly IWebHostEnvironment _env;
 
-        public ImageController(IImageService imageService)
+        public ImageController(IImageService imageService, IWebHostEnvironment env)
         {
-            this._imageService = imageService;
+            _imageService = imageService;
+            _env = env;
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<int>>> UploadImages([FromForm] List<IFormFile> files, string? entityType)
+        public async Task<IActionResult> UploadImages([FromForm] List<IFormFile> files, [FromQuery] PlazaInnType? entityType)
         {
-
+            if (entityType == null || !Enum.IsDefined(typeof(PlazaInnType), entityType))
+                return BadRequest("Invalid Image");
             if (files == null || files.Count == 0)
                 return BadRequest("No files uploaded.");
-            var ids = await _imageService.SaveImagesAsync(files, entityType);
-            return Ok(ids);
+
+            try
+            {
+                var ids = await _imageService.SaveImagesAsync(files, entityType);
+                return Ok(ids);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"🔥 Internal Error: {ex.Message} | {ex.InnerException?.Message}");
+            }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
     }
 }

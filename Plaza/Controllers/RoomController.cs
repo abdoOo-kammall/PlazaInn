@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlazaCore.Entites;
 using PlazaCore.ServiceContract;
 using Shared.DTO.Rooms;
+using Shared.Security;
 
 namespace Plaza.Controllers
 {
@@ -27,8 +28,14 @@ namespace Plaza.Controllers
             return Ok(actualRooms);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<RoomDTO>> GetRoom(int id) { 
+        [HttpGet("encodedId")]
+        public async Task<ActionResult<RoomDTO>> GetRoom(string encodedId) {
+            int id;
+            try { 
+                id = IdEncoder.DecodeId(encodedId);
+            } catch (Exception ex) {
+                return BadRequest("Invalid Room Id"); 
+            }
             var room  = await _roomService.GetRoomAsync(id);
             if (room == null) { return NotFound(); }
             return Ok(_mapper.Map<RoomDTO>(room));        
@@ -48,10 +55,18 @@ namespace Plaza.Controllers
             return CreatedAtAction(nameof(GetRoom), new { id = createdRoomDTO.Id }, createdRoomDTO);
             
         }
-        [HttpPut("{id:int}")]   
+        [HttpPut("encodedId")]   
 
 
-        public async Task<ActionResult> updateRoom(int id, [FromBody] UpdateRoomDTO  roomdto) {
+        public async Task<ActionResult> updateRoom(string encodedId, [FromBody] UpdateRoomDTO  roomdto) {
+            int id;
+            try
+            {
+                id = IdEncoder.DecodeId(encodedId); 
+            }
+            catch (Exception ex) {
+                return BadRequest("Invalid Room ID");
+            }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -64,9 +79,18 @@ namespace Plaza.Controllers
             return NoContent();
 
         }
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> deleteRoom(int id) { 
-        
+        [HttpDelete("encodedId")]
+        public async Task<ActionResult> deleteRoom(string encodedId) {
+            int id;
+            try
+            {
+                id = IdEncoder.DecodeId(encodedId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Invalid room ID");
+            }
+
             var room = await _roomService.GetRoomAsync(id);
             if (room == null) { return NotFound(); };
 

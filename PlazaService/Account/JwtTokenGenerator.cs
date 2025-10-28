@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using PlazaCore.Entites;
@@ -15,10 +16,12 @@ namespace PlazaService.Account
     public class JwtTokenGenerator : IJwtTokenGenerator
     {
         private readonly IConfiguration _configuration;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public JwtTokenGenerator(IConfiguration configuration)
+        public JwtTokenGenerator(IConfiguration configuration , UserManager<ApplicationUser> userManager)
         {
             _configuration = configuration;
+            this._userManager = userManager;
         }
         public async Task<string> GenerateToken(ApplicationUser user)
         {
@@ -26,8 +29,14 @@ namespace PlazaService.Account
             var claims = new List<Claim>() { 
                 new Claim("Id" , user.Id),
                 new Claim ("UserName" , user.UserName),
-                new Claim ("Email" , user.Email)
+                new Claim ("Email" , user.Email),
+               
             };
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim("Role", role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new Exception("JWT Key not configured")));
             var creds =new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

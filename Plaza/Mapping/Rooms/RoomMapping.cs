@@ -3,6 +3,7 @@ using AutoMapper;
 using PlazaCore.Entites;
 using Shared.DTO.Rooms;
 using Shared.Enums;
+using Shared.Security;
 
 namespace Plaza.Mapping.Rooms
 {
@@ -24,8 +25,9 @@ namespace Plaza.Mapping.Rooms
             CreateMap<UpdateRoomDTO, Room>();
             CreateMap<Room, RoomDTO>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString())).
-            ForMember(dest=> dest.HotelName,opt => opt.MapFrom(src => src.Hotel.Name))
-           .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => ConvertIdsToUrls(src.ImageIds, "room")));
+            ForMember(dest => dest.HotelName, opt => opt.MapFrom(src => src.Hotel.Name))
+           .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => ConvertIdsToUrls(src.ImageIds, "room")))
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => IdEncoder.EncodeId(src.Id)));
             ;
 
 
@@ -39,7 +41,8 @@ namespace Plaza.Mapping.Rooms
             try
             {
                 var ids = JsonSerializer.Deserialize<List<int>>(imageIdsJson);
-                return ids?.Select(id => $"/images/{entityType}/{id}.jpg").ToList() ?? new List<string>();
+                var baseUrl = "https://plazainn.runasp.net";
+                return ids?.Select(id => $"{baseUrl}/images/{entityType}/{id}.jpg").ToList() ?? new List<string>();
             }
             catch
             {

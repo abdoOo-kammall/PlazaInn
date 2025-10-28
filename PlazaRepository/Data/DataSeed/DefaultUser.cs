@@ -14,7 +14,7 @@ namespace PlazaRepository.Data.DataSeed
 
             var defaultUser = new ApplicationUser() {
                 UserName = "admin@plaza.com",
-                Email = "admin@plaza.com",
+                Email = "   ",
                 EmailConfirmed = true
             };
         
