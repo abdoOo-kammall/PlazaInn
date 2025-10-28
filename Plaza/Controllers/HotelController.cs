@@ -56,11 +56,13 @@ namespace Plaza.Controllers
                 var hotel =  _mapper.Map<Hotel>(hotelDto);
                 await _hotelService.AddHotelAsync(hotel);
 
-            await _hotelService.UpdateHotelAsync(hotel);
+            //await _hotelService.UpdateHotelAsync(hotel);
 
             var createdDto = _mapper.Map<HotelDto>(hotel);
+            var encodedId = IdEncoder.EncodeId(hotel.Id);
 
-                return CreatedAtAction(nameof(GetHotel), new { id = createdDto.Id }, createdDto);
+
+            return CreatedAtAction(nameof(GetHotel), new { encodedId }, createdDto);
             
             }
             [HttpPut("{encodedId}")]

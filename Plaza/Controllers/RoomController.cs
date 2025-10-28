@@ -52,7 +52,8 @@ namespace Plaza.Controllers
             var savedRoom = await _roomService.GetRoomAsync(roomEntity.Id);
 
             var createdRoomDTO = _mapper.Map<RoomDTO>(savedRoom);
-            return CreatedAtAction(nameof(GetRoom), new { id = createdRoomDTO.Id }, createdRoomDTO);
+            var encodedId = IdEncoder.EncodeId(savedRoom.Id);
+            return CreatedAtAction(nameof(GetRoom), new { encodedId }, createdRoomDTO);
             
         }
         [HttpPut("encodedId")]   

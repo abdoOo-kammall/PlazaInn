@@ -12,7 +12,6 @@
                 .ForMember(dest => dest.ImageUrls,
                            opt => opt.MapFrom(src => ConvertIdsToUrls(src.ImageIds, "hotel")))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => IdEncoder.EncodeId(src.Id)));
-        //.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
 
 
         CreateMap<CreateHotelDto, Hotel>()

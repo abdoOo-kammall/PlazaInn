@@ -41,7 +41,7 @@ namespace Plaza.Mapping.Rooms
             try
             {
                 var ids = JsonSerializer.Deserialize<List<int>>(imageIdsJson);
-                var baseUrl = "https://plazainn.runasp.net";
+                var baseUrl = "http://plazainn.runasp.net";
                 return ids?.Select(id => $"{baseUrl}/images/{entityType}/{id}.jpg").ToList() ?? new List<string>();
             }
             catch
