@@ -8,8 +8,10 @@ using PlazaCore.RepositoryContract;
 using PlazaCore.ServiceContract;
 using PlazaCore.ServiceContract.Account;
 using PlazaRepository;
+using PlazaRepository.UserRepo;
 using PlazaService.Account;
 using PlazaService.Hotels;
+using PlazaService.Users;
 
 namespace Plaza.Extensions
 {
@@ -38,6 +40,8 @@ namespace Plaza.Extensions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IRoomService , RoomService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
 
             
 

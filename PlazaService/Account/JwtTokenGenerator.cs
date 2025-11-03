@@ -45,7 +45,8 @@ namespace PlazaService.Account
                     claims :claims,
                     signingCredentials:creds,
                      issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"] 
+                audience: _configuration["Jwt:Audience"] ,
+                expires: DateTime.UtcNow.AddHours(1)
                 );
             return  new JwtSecurityTokenHandler().WriteToken(token);
         }

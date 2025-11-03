@@ -24,7 +24,11 @@ namespace PlazaService.Hotels
             await _roomRepo.AddAsync(room);
             await _roomRepo.SaveChangesAsync();
         }
-
+        public async Task<IEnumerable<Room>> GetRoomByHotelIdAsync(int id) {
+            var spec =  new RoomByHotelIdSpec(id);
+            return await _roomRepo.GetAllWithSpecAsync(spec);
+        
+        }
         public async Task DeleteRoomAsync(int id)
         {
             var room = await _roomRepo.GetByIdAsync(id);

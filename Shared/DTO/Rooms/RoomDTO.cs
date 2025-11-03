@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.DTO.Image;
 using Shared.Enums;
 
 namespace Shared.DTO.Rooms
@@ -17,7 +18,7 @@ namespace Shared.DTO.Rooms
         public decimal PricePerNight { get; set; }
         public bool IsAvailable { get; set; }
 
-        public List<string> ImageUrls { get; set; } = new List<string>();
+        public List<ImageDTO> Images { get; set; } = new List<ImageDTO>();
 
     }
 }

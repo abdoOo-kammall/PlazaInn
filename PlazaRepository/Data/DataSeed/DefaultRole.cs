@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Shared.Enums;
 
 namespace PlazaRepository.Data.DataSeed
 {
@@ -11,11 +12,13 @@ namespace PlazaRepository.Data.DataSeed
     {
         public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
         {
-            if (!await roleManager.RoleExistsAsync("Admin"))
-                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            var roleEnum = Enum.GetNames(typeof(Role));
 
-            if (!await roleManager.RoleExistsAsync("Client"))
-                await roleManager.CreateAsync(new IdentityRole("Client"));
+            foreach (var role in roleEnum) {
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole(role));
+            }
+
         }
     }
 }

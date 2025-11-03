@@ -79,26 +79,25 @@ namespace Plaza
             #endregion
 
             var app = builder.Build();
-            #region dataSeeding
 
-            //await SeedDataAsync(app);
+            await SeedDataAsync(app);
 
-            //#region DataSeeding
-            //async Task SeedDataAsync(WebApplication app)
-            //{
-            //    using var scope = app.Services.CreateScope();
-            //    var services = scope.ServiceProvider;
+            #region DataSeeding
+            async Task SeedDataAsync(WebApplication app)
+            {
+                using var scope = app.Services.CreateScope();
+                var services = scope.ServiceProvider;
 
-            //    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-            //    await DefaultRole.SeedAsync(roleManager);
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                await DefaultRole.SeedAsync(roleManager);
 
-            //    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-            //    await DefaultUser.SeedAsync(userManager);
-            //}
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                await DefaultUser.SeedAsync(userManager);
+            }
             #endregion
 
 
-           
+
             app.UseSwagger();
                 app.UseSwaggerUI();
            
