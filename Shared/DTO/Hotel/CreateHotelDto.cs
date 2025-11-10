@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Shared.DTO.InsightHotel;
 
 namespace Shared.DTO.Hotel
 {
@@ -43,14 +44,24 @@ namespace Shared.DTO.Hotel
 
         [Required(ErrorMessage = "Phone number is required")]
         [RegularExpression(@"^\d{6,15}$", ErrorMessage = "Phone number must contain only digits and be between 6 and 15 digits")]
-        public int Phone { get; set; }
+        public string Phone { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email address format")]
         public string Email { get; set; }
 
+
+        public int NumOfAvailableRoomsToReserve { get; set; } = 0;
+        public int NumOfAvailableSuitesToReserve { get; set; } = 0;
         // Rating is optional on creation (you can default it to 0)
         public double Rating { get; set; } = 0;
+        // socail media 
+        public string? Instagram { get; set; }
+        public string? Facebook { get; set; }
+        public string? WhatsApp { get; set; }
+        public string? Space { get; set; }
+        public InsightHotelDto? Insight { get; set; }
+
 
         [MinLength(1, ErrorMessage = "At least one image ID is required")]
         public List<int> ImageIds { get; set; } = new();

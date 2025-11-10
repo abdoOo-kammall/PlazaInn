@@ -12,10 +12,14 @@ namespace PlazaCore.Specification.HotelSpecification
         public HotelWithImagesAndRoomsSpec()
         {
             AddInclude(x => x.Rooms);
+            AddInclude(x => x.InsightHotel);
+            
         }
         public HotelWithImagesAndRoomsSpec(int id):base( h => h.Id==id)
         {
             AddInclude(x => x.Rooms);
+            AddInclude(x => x.InsightHotel);
+
         }
     }
 }

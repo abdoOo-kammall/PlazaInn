@@ -42,6 +42,7 @@ namespace Plaza.Extensions
             services.AddScoped<IRoomService , RoomService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IEmailService , EmailService>();
 
             
 

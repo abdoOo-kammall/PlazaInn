@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlazaService.Account
+namespace Shared.DTO.Account
 {
-    internal class GenerateToken
+    public class ForgotPasswordDTO
     {
+        public string Email { get; set; }
     }
 }

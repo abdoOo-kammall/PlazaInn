@@ -18,6 +18,7 @@ namespace Shared.DTO.Rooms
 
         [Range(1, double.MaxValue, ErrorMessage = "Price per night must be greater than 0")]
         public decimal PricePerNight { get; set; }
+        public Dictionary<string, bool> Features { get; set; } = new();
 
         public bool IsAvailable { get; set; } = true;
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlazaRepository;
 
@@ -11,9 +12,11 @@ using PlazaRepository;
 namespace PlazaRepository.Data.Migrations
 {
     [DbContext(typeof(PlazaDbContext))]
-    partial class PlazaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251106091028_hashImages")]
+    partial class hashImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,13 +262,7 @@ namespace PlazaRepository.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Facebook")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageIds")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instagram")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
@@ -293,14 +290,8 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
-                    b.Property<string>("Space")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("WhatsApp")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -337,41 +328,6 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("PlazaCore.Entites.InsightHotel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CafeDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CafeImages")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Facilities")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("HotelId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RestaurantDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RestaurantImages")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HotelId")
-                        .IsUnique();
-
-                    b.ToTable("InsightHotel");
-                });
-
             modelBuilder.Entity("PlazaCore.Entites.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -382,9 +338,6 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Features")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
@@ -466,17 +419,6 @@ namespace PlazaRepository.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PlazaCore.Entites.InsightHotel", b =>
-                {
-                    b.HasOne("PlazaCore.Entites.Hotel", "Hotel")
-                        .WithOne("InsightHotel")
-                        .HasForeignKey("PlazaCore.Entites.InsightHotel", "HotelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Hotel");
-                });
-
             modelBuilder.Entity("PlazaCore.Entites.Room", b =>
                 {
                     b.HasOne("PlazaCore.Entites.Hotel", "Hotel")
@@ -490,8 +432,6 @@ namespace PlazaRepository.Data.Migrations
 
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>
                 {
-                    b.Navigation("InsightHotel");
-
                     b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618

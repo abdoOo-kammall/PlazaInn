@@ -16,6 +16,7 @@ namespace PlazaCore.Entites
         public bool IsAvailable { get; set; }
 
         public string? ImageIds { get; set; }
+        public Dictionary<string, bool> Features { get; set; } = new();
 
 
 

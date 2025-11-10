@@ -5,6 +5,7 @@ using Shared.DTO.Image;
 using Shared.Security;
 using Shared.ImagePathGeneration; 
 using System.Text.Json;
+using Shared.DTO.User;
 
 public class HotelMapping : Profile
 {
@@ -14,46 +15,57 @@ public class HotelMapping : Profile
             .ForMember(dest => dest.Images,
                        opt => opt.MapFrom(src => ConvertIdsToImageDTO(src.ImageIds, "hotel")))
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => IdEncoder.EncodeId(src.Id)))
-            .ForMember(dest => dest.NumOfRooms,
-               opt => opt.MapFrom(src => src.Rooms.Count(r => r.Type != Shared.Enums.RoomType.Suite)))
-            .ForMember(dest => dest.NumOfSuites,
-               opt => opt.MapFrom(src => src.Rooms.Count(r => r.Type == Shared.Enums.RoomType.Suite)));
+            .ForMember(dest => dest.Insight, opt => opt.MapFrom(src => src.InsightHotel));
+
+
+        //CreateMap<CreateHotelDto, Hotel>()
+        //    .ForMember(dest => dest.ImageIds,
+        //               opt => opt.MapFrom(src => SerializeIds(src.ImageIds)));
+
 
         CreateMap<CreateHotelDto, Hotel>()
-            .ForMember(dest => dest.ImageIds,
-                       opt => opt.MapFrom(src => SerializeIds(src.ImageIds)));
+       .ForMember(dest => dest.ImageIds,
+                  opt => opt.MapFrom(src => SerializeIds(src.ImageIds)))
+       .AfterMap((src, dest) =>
+       {
+           if (src.Insight != null)
+           {
+               dest.InsightHotel = new InsightHotel
+               {
+                   RestaurantDescription = src.Insight.RestaurantDescription,
+                   RestaurantImages = JsonSerializer.Serialize(src.Insight.RestaurantImageIds ?? new List<int>()),
+                   CafeDescription = src.Insight.CafeDescription,
+                   CafeImages = JsonSerializer.Serialize(src.Insight.CafeImageIds ?? new List<int>()),
+                   Facilities = src.Insight.Facilities ?? new Dictionary<string, bool>()
+               };
+           }
+       });
+
+
 
         CreateMap<UpdateHotelDTO, Hotel>()
-            .ForMember(dest => dest.ImageIds,
-                       opt => opt.MapFrom(src => SerializeIds(src.ImageIds)));
+    .ForMember(dest => dest.ImageIds,
+               opt => opt.MapFrom(src => SerializeIds(src.ImageIds)))
+    .AfterMap((src, dest) =>
+    {
+        if (src.Insight != null)
+        {
+            dest.InsightHotel = new InsightHotel
+            {
+                RestaurantDescription = src.Insight.RestaurantDescription,
+                RestaurantImages = JsonSerializer.Serialize(src.Insight.RestaurantImageIds ?? new List<int>()),
+                CafeDescription = src.Insight.CafeDescription,
+                CafeImages = JsonSerializer.Serialize(src.Insight.CafeImageIds ?? new List<int>()),
+                Facilities = src.Insight.Facilities ?? new Dictionary<string, bool>()
+            };
+        }
+    });
+
+
     }
 
     // 🧩 Helper methods
 
-    //private static List<ImageDTO> ConvertIdsToImageDTO(string imageIdsJson, string entityType = "general")
-    //{
-    //    if (string.IsNullOrEmpty(imageIdsJson))
-    //        return new List<ImageDTO>();
-
-    //    try
-    //    {
-    //        var ids = JsonSerializer.Deserialize<List<int>>(imageIdsJson);
-
-    //        return ids?.Select(id =>
-    //        {
-    //            var relativePath = $"wwwroot/images/{entityType}/{id}.jpg";
-    //            return new ImageDTO
-    //            {
-    //                Id = id,
-    //                Url = ImagePathCreation.BuildFullImageUrl(relativePath) 
-    //            };
-    //        }).ToList() ?? new List<ImageDTO>();
-    //    }
-    //    catch
-    //    {
-    //        return new List<ImageDTO>();
-    //    }
-    //}
 
     private static List<ImageDTO> ConvertIdsToImageDTO(string imageIdsJson, string entityType = "general")
     {

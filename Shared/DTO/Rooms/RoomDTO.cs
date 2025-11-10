@@ -17,6 +17,7 @@ namespace Shared.DTO.Rooms
         public string Type { get; set; }
         public decimal PricePerNight { get; set; }
         public bool IsAvailable { get; set; }
+        public Dictionary<string, bool> Features { get; set; } = new();
 
         public List<ImageDTO> Images { get; set; } = new List<ImageDTO>();
 

@@ -13,6 +13,7 @@ using PlazaCore.ServiceContract.Account;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using AutoMapper;
 using Shared.DTO.Account;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlazaService.Account
 {
@@ -21,16 +22,30 @@ namespace PlazaService.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<ApplicationUser> userManager  ,IJwtTokenGenerator jwtTokenGenerator ,IMapper mapper )
+        public AuthService(UserManager<ApplicationUser> userManager  ,IJwtTokenGenerator jwtTokenGenerator ,IMapper mapper , IEmailService emailService )
         {
             this._userManager = userManager;
             this._jwtTokenGenerator = jwtTokenGenerator;
             this._mapper = mapper;
+            this._emailService = emailService;
         }
 
-       
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) { 
+               throw new ArgumentNullException("email not found");
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = $"http://localhost:4200/reset-password?email={email}&token={Uri.EscapeDataString(token)}";
+            await _emailService.SendEmailAsync(email, "Reset Password",
+                $"Click <a href='{resetLink}'>here</a> to reset your password.");
+
+
+        }
 
         public async Task<LoginResultDTO> LoginAsync(LoginDTO loginDTO)
         {
@@ -62,6 +77,21 @@ namespace PlazaService.Account
                 throw new InvalidOperationException($"Registration failed: {errors}");
             }
             await _userManager.AddToRoleAsync(user ,"Client");
+        }
+
+        public async Task ResetPasswordAsync(string email, string token, string newPassword)
+        {
+           var user  = await _userManager.FindByEmailAsync(email);
+            if (user == null) throw new ArgumentException("invalid email");
+
+          var result =   await _userManager.ResetPasswordAsync(user,token,newPassword);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Reset password failed: {errors}");
+            }
+
+
         }
     }
 }

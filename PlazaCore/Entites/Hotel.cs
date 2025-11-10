@@ -19,14 +19,22 @@ namespace PlazaCore.Entites
         public string City { get; set; } = null!;
         public string CityAr { get; set; }
         public string Location { get; set; } = null!;
-        public int Phone {  get; set; }
+        public string Phone {  get; set; }
 
         //public string Email { get; set; } = null!;
         public string Email { get; set; } = null!;
 
+        public int NumOfAvailableRoomsToReserve { get; set; }
+        public int NumOfAvailableSuitesToReserve { get; set; }
         public double Rating { get; set; }
-     
+        // socail media 
+        public string? Instagram {  get; set; }
+        public string? Facebook { get; set; }
+        public string? WhatsApp { get; set; }
+        public string? Space { get; set; }
+        
         public string? ImageIds { get; set; }
         public ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
+        public InsightHotel? InsightHotel { get; set; }
     }
 }

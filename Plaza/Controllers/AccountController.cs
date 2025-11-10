@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Plaza.DTO.Account;
 using PlazaCore.ServiceContract.Account;
+using Shared.DTO.Account;
 
 namespace Plaza.Controllers
 {
@@ -63,5 +64,35 @@ namespace Plaza.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        {
+            try
+            {
+                await _authService.ForgotPasswordAsync(dto.Email);
+                return Ok(new { message = "Password reset link sent to your email." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            try
+            {
+                dto.Token = Uri.UnescapeDataString(dto.Token);
+
+                await _authService.ResetPasswordAsync(dto.Email, dto.Token, dto.NewPassword);
+                return Ok(new { message = "Password reset successful." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Shared.DTO.Image;
+using Shared.DTO.InsightHotel;
 
 namespace Shared.DTO.Hotel
 {
@@ -26,17 +27,28 @@ namespace Shared.DTO.Hotel
         public string Location { get; set; }
 
         //  Contact Info
-        public int Phone { get; set; }
+        public string Phone { get; set; }
         public string Email { get; set; }
 
         //  Hotel Rating
         public double Rating { get; set; }
 
-        //  Calculated fields
-        public int NumOfRooms { get; set; }
-        public int NumOfSuites { get; set; }
+        // socail media 
+        public string? Instagram { get; set; }
+        public string? Facebook { get; set; }
+        public string? WhatsApp { get; set; }
+        public string? Space { get; set; }
 
+        //  Calculated fields
+        //public int NumOfAllRooms { get; set; }
+        //public int NumOfAllSuites { get; set; }
+
+        public int NumOfAvailableRoomsToReserve { get; set; }
+        public int NumOfAvailableSuitesToReserve { get; set; }
         //  Image list
         public List<ImageDTO> Images { get; set; } = new();
+
+        public InsightHotelDto? Insight { get; set; }
+
     }
 }
