@@ -26,7 +26,7 @@ namespace PlazaRepository
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Image> Images { get; set; }
-
+public   DbSet<Partners> Partners { get; set; }
 
     }
 }

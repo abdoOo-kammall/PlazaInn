@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlazaRepository;
 
@@ -11,9 +12,11 @@ using PlazaRepository;
 namespace PlazaRepository.Data.Migrations
 {
     [DbContext(typeof(PlazaDbContext))]
-    partial class PlazaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251110105024_Partners03")]
+    partial class Partners03
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace PlazaRepository.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("HotelPartners", b =>
-                {
-                    b.Property<int>("HotelsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PartnersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("HotelsId", "PartnersId");
-
-                    b.HasIndex("PartnersId");
-
-                    b.ToTable("HotelPartners");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -387,33 +375,6 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("InsightHotel");
                 });
 
-            modelBuilder.Entity("PlazaCore.Entites.Partners", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Partners");
-                });
-
             modelBuilder.Entity("PlazaCore.Entites.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -455,21 +416,6 @@ namespace PlazaRepository.Data.Migrations
                     b.HasIndex("HotelId");
 
                     b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("HotelPartners", b =>
-                {
-                    b.HasOne("PlazaCore.Entites.Hotel", null)
-                        .WithMany()
-                        .HasForeignKey("HotelsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PlazaCore.Entites.Partners", null)
-                        .WithMany()
-                        .HasForeignKey("PartnersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
