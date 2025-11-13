@@ -96,7 +96,7 @@ namespace Plaza
             }
             #endregion
 
-
+        
 
             app.UseSwagger();
                 app.UseSwaggerUI();
@@ -123,7 +123,30 @@ namespace Plaza
 
             app.UseAuthorization();
 
+
             app.MapControllers();
+            app.Use(async (context, next) =>
+            {
+                try
+                {
+                    await next();
+                }
+                catch (Exception ex)
+                {
+                    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "Unhandled exception!");
+
+                    context.Response.StatusCode = 500;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        message = ex.Message,
+                        inner = ex.InnerException?.Message,
+                        stack = ex.StackTrace
+                    });
+                }
+            });
+
 
             app.Run();
         }

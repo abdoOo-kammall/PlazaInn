@@ -25,41 +25,41 @@ public class HotelMapping : Profile
 
         CreateMap<CreateHotelDto, Hotel>()
        .ForMember(dest => dest.ImageIds,
-                  opt => opt.MapFrom(src => SerializeIds(src.ImageIds)))
-       .AfterMap((src, dest) =>
-       {
-           if (src.Insight != null)
-           {
-               dest.InsightHotel = new InsightHotel
-               {
-                   RestaurantDescription = src.Insight.RestaurantDescription,
-                   RestaurantImages = JsonSerializer.Serialize(src.Insight.RestaurantImageIds ?? new List<int>()),
-                   CafeDescription = src.Insight.CafeDescription,
-                   CafeImages = JsonSerializer.Serialize(src.Insight.CafeImageIds ?? new List<int>()),
-                   Facilities = src.Insight.Facilities ?? new Dictionary<string, bool>()
-               };
-           }
-       });
+                  opt => opt.MapFrom(src => SerializeIds(src.ImageIds)));
+       //.AfterMap((src, dest) =>
+       //{
+       //    if (src.Insight != null)
+       //    {
+       //        dest.InsightHotel = new InsightHotel
+       //        {
+       //            RestaurantDescription = src.Insight.RestaurantDescription,
+       //            RestaurantImages = JsonSerializer.Serialize(src.Insight.RestaurantImageIds ?? new List<int>()),
+       //            CafeDescription = src.Insight.CafeDescription,
+       //            CafeImages = JsonSerializer.Serialize(src.Insight.CafeImageIds ?? new List<int>()),
+       //            Facilities = src.Insight.Facilities ?? new Dictionary<string, bool>()
+       //        };
+       //    }
+       //});
 
 
 
         CreateMap<UpdateHotelDTO, Hotel>()
     .ForMember(dest => dest.ImageIds,
-               opt => opt.MapFrom(src => SerializeIds(src.ImageIds)))
-    .AfterMap((src, dest) =>
-    {
-        if (src.Insight != null)
-        {
-            dest.InsightHotel = new InsightHotel
-            {
-                RestaurantDescription = src.Insight.RestaurantDescription,
-                RestaurantImages = JsonSerializer.Serialize(src.Insight.RestaurantImageIds ?? new List<int>()),
-                CafeDescription = src.Insight.CafeDescription,
-                CafeImages = JsonSerializer.Serialize(src.Insight.CafeImageIds ?? new List<int>()),
-                Facilities = src.Insight.Facilities ?? new Dictionary<string, bool>()
-            };
-        }
-    });
+               opt => opt.MapFrom(src => SerializeIds(src.ImageIds)));
+    //.AfterMap((src, dest) =>
+    //{
+    //    if (src.Insight != null)
+    //    {
+    //        dest.InsightHotel = new InsightHotel
+    //        {
+    //            RestaurantDescription = src.Insight.RestaurantDescription,
+    //            RestaurantImages = JsonSerializer.Serialize(src.Insight.RestaurantImageIds ?? new List<int>()),
+    //            CafeDescription = src.Insight.CafeDescription,
+    //            CafeImages = JsonSerializer.Serialize(src.Insight.CafeImageIds ?? new List<int>()),
+    //            Facilities = src.Insight.Facilities ?? new Dictionary<string, bool>()
+    //        };
+    //    }
+    //});
 
 
     }

@@ -60,7 +60,7 @@ namespace Shared.DTO.Hotel
         public string? Facebook { get; set; }
         public string? WhatsApp { get; set; }
         public string? Space { get; set; }
-        public InsightHotelDto? Insight { get; set; }
+        //public InsightHotelDto? Insight { get; set; }
 
 
         [MinLength(1, ErrorMessage = "At least one image ID is required")]

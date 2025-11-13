@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.Entites;
@@ -7,6 +8,8 @@ using Shared.DTO.User;
 
 namespace Plaza.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

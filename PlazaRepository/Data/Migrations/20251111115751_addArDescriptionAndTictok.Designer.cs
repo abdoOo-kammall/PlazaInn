@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlazaRepository;
 
@@ -11,9 +12,11 @@ using PlazaRepository;
 namespace PlazaRepository.Data.Migrations
 {
     [DbContext(typeof(PlazaDbContext))]
-    partial class PlazaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111115751_addArDescriptionAndTictok")]
+    partial class addArDescriptionAndTictok
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -372,9 +375,6 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<string>("CafeImages")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Facilities")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -390,9 +390,6 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<string>("RestaurantImages")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -454,6 +451,10 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");

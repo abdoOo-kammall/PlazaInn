@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.Entites;
@@ -8,6 +9,8 @@ using Shared.Security;
 
 namespace Plaza.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     [Route("api/[controller]")]
     [ApiController]
     public class RoomController : ControllerBase
@@ -85,7 +88,7 @@ namespace Plaza.Controllers
             var rooms = await _roomService.GetRoomByHotelIdAsync(id);
             if (rooms == null || !rooms.Any())
             {
-                return NotFound();
+                return Ok();
             }
 
             var actualRooms = _mapper.Map<IEnumerable<RoomDTO>>(rooms);

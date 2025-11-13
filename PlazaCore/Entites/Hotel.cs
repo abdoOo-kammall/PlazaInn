@@ -32,6 +32,7 @@ namespace PlazaCore.Entites
         public string? Facebook { get; set; }
         public string? WhatsApp { get; set; }
         public string? Space { get; set; }
+        public string? Tictok {  get; set; }
         
         public string? ImageIds { get; set; }
         public ICollection<Room> Rooms { get; set; } = new HashSet<Room>();

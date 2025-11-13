@@ -10,7 +10,7 @@ namespace PlazaCore.Entites
 {
     public class Room : BaseEntity
     {
-        public string RoomNumber { get; set; } 
+        //public string RoomNumber { get; set; } 
         public RoomType Type { get; set; }  // Single, Double, Suite
         public decimal PricePerNight { get; set; }
         public bool IsAvailable { get; set; }
