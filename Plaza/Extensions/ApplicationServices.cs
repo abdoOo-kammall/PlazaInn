@@ -12,6 +12,7 @@ using PlazaRepository.UserRepo;
 using PlazaService.Account;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
+using PlazaService.Menu;
 using PlazaService.Users;
 
 namespace Plaza.Extensions
@@ -45,7 +46,7 @@ namespace Plaza.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IEmailService , EmailService>();
             services.AddScoped<IInsightHotelService, InsightHotelService>();
-
+            services.AddScoped<IMenuService, MenuService>();
             
 
 

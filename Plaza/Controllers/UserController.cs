@@ -8,7 +8,7 @@ using Shared.DTO.User;
 
 namespace Plaza.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
 
     [Route("api/[controller]")]
     [ApiController]

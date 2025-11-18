@@ -336,13 +336,12 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Hash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -369,7 +368,10 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<string>("CafeDescriptionAr")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CafeImages")
+                    b.Property<string>("CafeImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CafeMenuPdfIds")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -388,7 +390,10 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<string>("RestaurantDescriptionAr")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RestaurantImages")
+                    b.Property<string>("RestaurantImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RestaurantMenuPdfIds")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")

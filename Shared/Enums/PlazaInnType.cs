@@ -9,9 +9,11 @@ namespace Shared.Enums
 {
     public enum PlazaInnType
     {
-        hotel , //0
-        room ,  //1
-        restaurant ,//2
-        cafe  //3
+        hotel,
+        room,
+        restaurant,
+        cafe,
+        restaurantMenu,
+        cafeMenu
     }
 }

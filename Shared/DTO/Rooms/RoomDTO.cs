@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Shared.DTO.Image;
+using Shared.DTO.File;
 using Shared.Enums;
 
 namespace Shared.DTO.Rooms
@@ -18,7 +18,7 @@ namespace Shared.DTO.Rooms
         public bool IsAvailable { get; set; }
         public Dictionary<string, bool> Features { get; set; } = new();
 
-        public List<ImageDTO> Images { get; set; } = new List<ImageDTO>();
+        public List<FileDto> Images { get; set; } = new List<FileDto>();
 
     }
 }

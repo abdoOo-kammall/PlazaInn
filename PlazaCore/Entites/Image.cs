@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Enums;
 
 namespace PlazaCore.Entites
 {
@@ -10,7 +11,7 @@ namespace PlazaCore.Entites
     {
         public string? Url { get; set; } 
         //public bool IsMain { get; set; }
-        public string EntityType { get; set; }  // "Hotel" أو "Room"
+        public PlazaInnType Type { get; set; }  
         public string Hash { get; set; }
 
     }

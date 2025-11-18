@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.DTO.Image
+namespace Shared.DTO.File
 {
-    public class ImageDTO
+    public  class FileDto
     {
         public int Id { get; set; }
 

@@ -25,7 +25,7 @@ namespace PlazaService.Users
             this._roleManager = roleManager;
         }
 
-        public async Task<IdentityResult> addUserAsync(ApplicationUser user, string password, string role)
+        public async Task<IdentityResult> addUserAsync(ApplicationUser user, string password, Role role)
         {
             //if (!await _roleManager.RoleExistsAsync(role)) ;
             //await _roleManager.CreateAsync(new IdentityRole(role));
@@ -85,7 +85,7 @@ namespace PlazaService.Users
             }
 
             var currentRoles = await _userManager.GetRolesAsync(user);
-            var newRole = dto.Role;
+            var newRole = dto.Role.ToString();
 
             if (!currentRoles.Contains(newRole))
             {

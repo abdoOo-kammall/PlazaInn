@@ -16,7 +16,7 @@ namespace PlazaCore.ServiceContract
         Task<ApplicationUser> getUserByIdAsync(string id);
         Task<string> getUserRoleAsync(ApplicationUser user);
 
-        Task<IdentityResult> addUserAsync(ApplicationUser user, string password, string role);
+        Task<IdentityResult> addUserAsync(ApplicationUser user, string password, Role role);
         Task<IdentityResult> updateUserAsync(string id, updateUserDTO dto);
 
 

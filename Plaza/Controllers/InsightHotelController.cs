@@ -5,10 +5,11 @@ using Shared.DTO.InsightHotel;
 using Shared.Security;
 using PlazaCore.Entites;
 using Microsoft.AspNetCore.Authorization;
+using Shared.Enums;
 
 namespace Plaza.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
 
     [Route("api/[controller]")]
     [ApiController]
@@ -34,7 +35,6 @@ namespace Plaza.Controllers
 
         public async Task<ActionResult> AddInsightHotel([FromBody] CreateInsightHotelDto dto)
         {
-            // فك الـ EncodedHotelId
             int hotelId;
             try
             {
@@ -66,7 +66,6 @@ namespace Plaza.Controllers
             }
 
 
-            //await _insightService.AddInsightHotelAsync(insight);
 
             return CreatedAtAction(nameof(GetInsightHotel),
                                    new { encodedHotelId = dto.EncodedHotelId },
@@ -96,7 +95,7 @@ namespace Plaza.Controllers
         }
 
         [HttpPut("{encodedHotelId}")]
-        public async Task<ActionResult> UpdateInsightHotel(string encodedHotelId, [FromBody] InsightHotelDto dto)
+        public async Task<ActionResult> UpdateInsightHotel(string encodedHotelId, [FromBody] UpdateInsightHotelDto dto)
         {
             int hotelId;
             try
@@ -141,5 +140,7 @@ namespace Plaza.Controllers
 
             return NoContent();
         }
+     
+
     }
 }

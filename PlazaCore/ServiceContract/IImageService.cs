@@ -11,8 +11,8 @@ namespace PlazaCore.ServiceContract
 {
     public interface IImageService
     {
-        Task<List<int>> SaveImagesAsync(List<IFormFile> files , PlazaInnType? entityType );
-        Task DeleteImageAsync(int imageId);
+        Task<List<int>> SaveFilesAsync(List<IFormFile> files , PlazaInnType? entityType );
+        Task DeleteImageAsync(int Id);
         Task<Image?> GetImageByIdAsync(int id);
 
 

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using PlazaCore.Entites;
+using Shared.Enums;
 
 namespace PlazaCore.ServiceContract
 {
@@ -13,5 +15,8 @@ namespace PlazaCore.ServiceContract
         Task<InsightHotel?> GetByHotelIdAsync(int hotelId);
         Task UpdateInsightHotelAsync(InsightHotel insightHotel);
         Task DeleteInsightHotelAsync(int hotelId);
+        //Task<string> UploadMenuPdfAsync(int hotelId, IFormFile file, MenuType menuType);
+
+
     }
 }

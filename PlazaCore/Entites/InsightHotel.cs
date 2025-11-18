@@ -9,23 +9,20 @@ namespace PlazaCore.Entites
 {
     public class InsightHotel : BaseEntity
     {
-        //public int Id { get; set; }
-        // Restautant
         public string? RestaurantDescription { get; set; }
         public string? RestaurantDescriptionAr { get; set; }
-
-        public string? RestaurantImages { get; set; }
-
-        // cafe
         public string? CafeDescription { get; set; }
         public string? CafeDescriptionAr { get; set; }
 
-        public string? CafeImages { get; set; }
+        public string? RestaurantImageIds { get; set; }
+        public string? CafeImageIds { get; set; }
+        public string? RestaurantMenuPdfIds { get; set; }
+        public string? CafeMenuPdfIds { get; set; }
 
-        public Dictionary<string , bool> Facilities{ get; set; }
+        public Dictionary<string, bool> Facilities { get; set; }
 
         [ForeignKey("Hotel")]
         public int HotelId { get; set; }
         public Hotel Hotel { get; set; } = null!;
     }
-}
+    }

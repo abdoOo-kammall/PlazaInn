@@ -1,4 +1,4 @@
-﻿using Shared.DTO.Image;
+﻿using Shared.DTO.File;
 using Shared.DTO.InsightHotel;
 
 namespace Shared.DTO.Hotel
@@ -46,7 +46,7 @@ namespace Shared.DTO.Hotel
         public int NumOfAvailableRoomsToReserve { get; set; }
         public int NumOfAvailableSuitesToReserve { get; set; }
         //  Image list
-        public List<ImageDTO> Images { get; set; } = new();
+        public List<FileDto> Images { get; set; } = new();
 
         public InsightHotelDto? Insight { get; set; }
 
