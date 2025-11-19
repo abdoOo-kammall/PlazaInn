@@ -47,7 +47,7 @@ namespace Plaza.Controllers
 
             var hotel = await _hotelService.GetHotelAsync(hotelId);
             if (hotel == null)
-                return NotFound("Hotel not found");
+                return Ok();
 
             var insight = _mapper.Map<InsightHotel>(dto);
 
@@ -87,7 +87,7 @@ namespace Plaza.Controllers
 
             var insight = await _insightService.GetByHotelIdAsync(hotelId);
             if (insight == null)
-                return NotFound();
+                return Ok();
 
             var result = _mapper.Map<InsightHotelDto>(insight);
 
@@ -109,7 +109,7 @@ namespace Plaza.Controllers
 
             var existing = await _insightService.GetByHotelIdAsync(hotelId);
             if (existing == null)
-                return NotFound();
+                return Ok();
 
             
             _mapper.Map(dto, existing);
@@ -134,7 +134,7 @@ namespace Plaza.Controllers
 
             var insight = await _insightService.GetByHotelIdAsync(hotelId);
             if (insight == null)
-                return NotFound();
+                return Ok();
 
             await _insightService.DeleteInsightHotelAsync(hotelId);
 

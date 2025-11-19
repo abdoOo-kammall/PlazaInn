@@ -48,7 +48,7 @@ namespace Plaza.Controllers
             var room = await _roomService.GetRoomAsync(id);
             if (room == null)
             {
-                return NotFound();
+                return Ok();
             }
 
             return Ok(_mapper.Map<RoomDTO>(room));
@@ -116,7 +116,7 @@ namespace Plaza.Controllers
             var existingRoom = await _roomService.GetRoomAsync(id);
             if (existingRoom == null)
             {
-                return NotFound();
+                return Ok();
             }
 
             _mapper.Map(roomdto, existingRoom);
@@ -141,7 +141,7 @@ namespace Plaza.Controllers
             var room = await _roomService.GetRoomAsync(id);
             if (room == null)
             {
-                return NotFound();
+                return Ok();
             }
 
             await _roomService.DeleteRoomAsync(id);

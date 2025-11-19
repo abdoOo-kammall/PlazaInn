@@ -9,11 +9,11 @@ using Shared.Enums;
 
 namespace PlazaCore.ServiceContract
 {
-    public interface IImageService
+    public interface IFileService
     {
         Task<List<int>> SaveFilesAsync(List<IFormFile> files , PlazaInnType? entityType );
-        Task DeleteImageAsync(int Id);
-        Task<Image?> GetImageByIdAsync(int id);
+        Task DeleteFileAsync(int Id);
+        Task<Image?> GetFileByIdAsync(int id);
 
 
     }

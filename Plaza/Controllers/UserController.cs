@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlazaCore.Entites;
 using PlazaCore.ServiceContract;
 using Shared.DTO.User;
+using Shared.Enums;
 
 namespace Plaza.Controllers
 {
@@ -29,7 +30,12 @@ namespace Plaza.Controllers
             var userDtos = new List<UserDTO>();
             foreach (var user in users) { 
                 var actualUser = _mapper.Map<UserDTO>(user);
-                actualUser.Role = await _userService.getUserRoleAsync(user)?? "No Role";
+                //actualUser.Role = await _userService.getUserRoleAsync(user)?? "No Role";
+                var roleString = await _userService.getUserRoleAsync(user);
+                if (Enum.TryParse<Role>(roleString, out var roleEnum))
+                    actualUser.Role = roleEnum;
+                else
+                    actualUser.Role = Role.User;
                 userDtos.Add(actualUser);
             }
             return Ok(userDtos);
@@ -39,10 +45,14 @@ namespace Plaza.Controllers
 
             var user = await _userService.getUserByIdAsync(userId);
             if (user == null)
-                return NotFound();
+                return Ok();
 
             var dto = _mapper.Map<UserDTO>(user);
-            dto.Role = await _userService.getUserRoleAsync(user) ?? "No Role";
+            var roleString = await _userService.getUserRoleAsync(user);
+            if(Enum.TryParse<Role>(roleString, out var roleEnum))
+                    dto.Role = roleEnum;
+                else
+                     dto.Role = Role.User;
 
             return Ok(dto);
         }

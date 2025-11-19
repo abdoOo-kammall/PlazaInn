@@ -8,6 +8,6 @@ namespace Shared.Enums
 {
     public enum Role
     {
-        Admin , Client
+        Admin=1 , Client=2 , User=3
     }
 }

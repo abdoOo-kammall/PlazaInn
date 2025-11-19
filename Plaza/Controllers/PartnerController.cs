@@ -28,7 +28,7 @@ namespace Plaza.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PartnerDto>> getPartner(int id) { 
             var partner = await _partnerService.GetPartnerAsync(id); 
-            if (partner == null) { return NotFound(); }
+            if (partner == null) { return Ok(); }
             return Ok(partner);
         }
         //[HttpPost]

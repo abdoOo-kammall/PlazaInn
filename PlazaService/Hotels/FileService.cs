@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace PlazaService.Hotels
 {
-    public class ImageService : IImageService
+    public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _env;
         private readonly IGenericRepository<Image> _repo;
 
-        public ImageService(IWebHostEnvironment env, IGenericRepository<Image> imageRepo)
+        public FileService(IWebHostEnvironment env, IGenericRepository<Image> imageRepo)
         {
             _env = env;
             _repo = imageRepo;
@@ -92,8 +92,11 @@ namespace PlazaService.Hotels
 
                 foreach (var file in files)
                 {
-                    if (type.ToString().ToLower().Contains("pdf") && Path.GetExtension(file.FileName).ToLower() != ".pdf")
+                    var isPdfType = type == PlazaInnType.restaurantMenu || type == PlazaInnType.cafeMenu;
+
+                    if (isPdfType && Path.GetExtension(file.FileName).ToLower() != ".pdf")
                         throw new Exception("Only PDF allowed");
+
 
                     string fileHash;
                     using (var sha256 = SHA256.Create())
@@ -142,12 +145,12 @@ namespace PlazaService.Hotels
             }
         }
 
-        public async Task<Image?> GetImageByIdAsync(int id)
+        public async Task<Image?> GetFileByIdAsync(int id)
         {
             return await _repo.GetByIdAsync(id);
         }
 
-        public async Task DeleteImageAsync(int Id)
+        public async Task DeleteFileAsync(int Id)
         {
             var file = await _repo.GetByIdAsync(Id);
             if (file == null) return;

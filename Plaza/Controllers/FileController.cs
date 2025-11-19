@@ -10,12 +10,12 @@ namespace Plaza.Controllers
 
     [Route("api/")]
     [ApiController]
-    public class ImageController : ControllerBase
+    public class FileController : ControllerBase
     {
-        private readonly IImageService _imageService;
+        private readonly IFileService _imageService;
         private readonly IWebHostEnvironment _env;
 
-        public ImageController(IImageService imageService, IWebHostEnvironment env)
+        public FileController(IFileService imageService, IWebHostEnvironment env)
         {
             _imageService = imageService;
             _env = env;

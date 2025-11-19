@@ -40,7 +40,7 @@ namespace Plaza.Extensions
 
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IRoomService , RoomService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();

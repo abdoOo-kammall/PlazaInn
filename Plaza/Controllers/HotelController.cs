@@ -44,7 +44,7 @@ namespace Plaza.Controllers
                 return BadRequest("Invalid hotel ID");
             }
             var hotel = await _hotelService.GetHotelAsync(id);
-            if (hotel == null) return NotFound();
+            if (hotel == null) return Ok();
             var hotelResult = _mapper.Map<HotelDto>(hotel);
 
             return Ok(hotelResult);
@@ -91,7 +91,7 @@ namespace Plaza.Controllers
             }
             var existing = await _hotelService.GetHotelAsync(id);
                 if (existing == null)
-                    return NotFound();
+                    return Ok();
                 _mapper.Map(hotelDto, existing);
 
             await _hotelService.UpdateHotelAsync(existing);
@@ -110,7 +110,7 @@ namespace Plaza.Controllers
                 return BadRequest("Invalid hotel ID");
             }
             var hotel = await _hotelService.GetHotelAsync(id);
-            if (hotel == null) return NotFound();
+            if (hotel == null) return Ok();
             await _hotelService.DeleteHotelAsync(id);
             return NoContent();
         }
