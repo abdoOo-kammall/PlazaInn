@@ -8,11 +8,11 @@ namespace Shared.DTO.Partner
 {
     public class PartnerDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
 
         public string Email { get; set; }
 
-        public List<int> HotelsIds { get; set; } = new List<int>();
+        public List<string> HotelsIds { get; set; } = new List<string>();
     }
 }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using PlazaCore.ServiceContract;
 using PlazaCore.Entites;
 using PlazaCore.RepositoryContract;
+using Microsoft.EntityFrameworkCore;
+using PlazaCore.Specification.PartnerSpecification;
 
 namespace PlazaService.Partner
 {
@@ -17,9 +19,10 @@ namespace PlazaService.Partner
         {
             this._partnerRepo = partnerRepository;
         }
-        public Task AddPartnerAsync(Partners room)
+        public async Task AddPartnerAsync(Partners partner)
         {
-            throw new NotImplementedException();
+            await _partnerRepo.AddPartnerWithHotelsAsync(partner);
+            await _partnerRepo.SaveChangesAsync();  
         }
 
         public async Task DeletePartnerAsync(int id)
@@ -33,22 +36,26 @@ namespace PlazaService.Partner
 
         public async Task<IEnumerable<Partners>> GetAllPartnersAsync()
         {
-            return await _partnerRepo.GetAllAsync();
+            var spec = new PartnersWithHotelsSpec();
+            return await _partnerRepo.GetAllWithSpecAsync(spec);
         }
 
         public async Task<Partners?> GetPartnerAsync(int id)
         {
-            return await _partnerRepo.GetByIdAsync(id);
+            var spec = new PartnerByIdWithHotelsSpec(id);
+            //return await _partnerRepo.GetByIdAsync(id);
+            return await _partnerRepo.GetByIdWithSpecAsync(spec);
         }
 
         public async Task<IEnumerable<Partners>> GetPartnersByHotelAsync(int hotelId)
         {
+            
             return await _partnerRepo.GetPartnersByHotelIdAsync(hotelId);
         }
 
         public async Task UpdatePartnerAsync(Partners partner)
         {
-            _partnerRepo.Update(partner);
+            _partnerRepo.UpdatePartnerWithHotelsAsync(partner);
             await _partnerRepo.SaveChangesAsync();
         }
     }

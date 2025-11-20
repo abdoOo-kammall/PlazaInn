@@ -8,11 +8,13 @@ using PlazaCore.RepositoryContract;
 using PlazaCore.ServiceContract;
 using PlazaCore.ServiceContract.Account;
 using PlazaRepository;
+using PlazaRepository.PartnerRepo;
 using PlazaRepository.UserRepo;
 using PlazaService.Account;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
 using PlazaService.Menu;
+using PlazaService.Partner;
 using PlazaService.Users;
 
 namespace Plaza.Extensions
@@ -47,7 +49,10 @@ namespace Plaza.Extensions
             services.AddScoped<IEmailService , EmailService>();
             services.AddScoped<IInsightHotelService, InsightHotelService>();
             services.AddScoped<IMenuService, MenuService>();
-            
+            services.AddScoped<IPartnerService, PartnerService>();
+            services.AddScoped<IPartnerRepository, PartnerRepository>();
+
+
 
 
 

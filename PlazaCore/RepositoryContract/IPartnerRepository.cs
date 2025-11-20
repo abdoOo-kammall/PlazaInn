@@ -10,6 +10,9 @@ namespace PlazaCore.RepositoryContract
     public interface IPartnerRepository :IGenericRepository<Partners>
     {
         Task<IEnumerable<Partners>> GetPartnersByHotelIdAsync(int hotelId);
+        public Task AddPartnerWithHotelsAsync(Partners partner);
+        public  Task UpdatePartnerWithHotelsAsync(Partners partner);
+
 
     }
 }

@@ -12,6 +12,7 @@ namespace PlazaCore.Specification.PartnerSpecification
         public PartnerByHotelIdSpec(int hotelId ) :base(p => p.Hotels.Any(h=>h.Id == hotelId))
         {
             //Criteria = p => p.Hotels.Any(h => h.Id == hotelId);
+            AddInclude(p=>p.Hotels);
 
         }
 

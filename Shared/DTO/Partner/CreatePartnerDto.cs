@@ -11,6 +11,6 @@ namespace Shared.DTO.Partner
         public string Name { get; set; }
         public string Email { get; set; }
 
-        public List<int> HotelsIds { get; set; } = new List<int>();
+        public List<string> HotelsIds { get; set; } = new List<string>();
     }
 }

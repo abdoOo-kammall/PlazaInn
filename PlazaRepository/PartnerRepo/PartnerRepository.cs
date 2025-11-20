@@ -17,10 +17,36 @@ namespace PlazaRepository.PartnerRepo
         {
             this._db = plazaDbContext;
         }
+
+       
+
         public async Task<IEnumerable<Partners>> GetPartnersByHotelIdAsync(int hotelId)
         {
             var spec = new PartnerByHotelIdSpec(hotelId);
             return await GetAllWithSpecAsync(spec);
         }
+
+        public async Task AddPartnerWithHotelsAsync(Partners partner)
+        {
+         
+            foreach (var hotel in partner.Hotels)
+            {
+                _db.Hotels.Attach(hotel);
+            }
+
+            await AddAsync(partner);
+        }
+
+        public async Task UpdatePartnerWithHotelsAsync(Partners partner)
+        {
+            foreach (var hotel in partner.Hotels)
+            {
+                _db.Hotels.Attach(hotel);
+            }
+
+            Update(partner);
+            
+        }
+
     }
 }
