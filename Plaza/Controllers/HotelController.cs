@@ -6,6 +6,7 @@ using PlazaCore.Entites;
 using PlazaCore.ServiceContract;
 using PlazaService.Hotels;
 using Shared.DTO.Hotel;
+using Shared.DTO.LookUp;
 using Shared.Security;
 
 namespace Plaza.Controllers
@@ -114,5 +115,20 @@ namespace Plaza.Controllers
             await _hotelService.DeleteHotelAsync(id);
             return NoContent();
         }
+        [HttpGet("lookup")]
+        public async Task<ActionResult<IEnumerable<HotelLookupDto>>> GetLookup()
+        {
+            var hotels = await _hotelService.GetAllHotelsAsync();
+
+            var result = hotels.Select(h => new
+            {
+                Id = IdEncoder.EncodeId(h.Id),
+                Name = h.Name,
+                NameAr = h.NameAr
+            });
+
+            return Ok(result);
+        }
+
     }
 }

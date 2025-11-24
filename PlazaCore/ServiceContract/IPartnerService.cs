@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PlazaCore.Entites;
+using Shared.DTO.Email;
 using Shared.DTO.Partner;
 
 namespace PlazaCore.ServiceContract
@@ -16,6 +17,8 @@ namespace PlazaCore.ServiceContract
         Task UpdatePartnerAsync(Partners partner);
         Task DeletePartnerAsync(int id);
         Task<IEnumerable<Partners>> GetPartnersByHotelAsync(int hotelId);
+        Task SendEmailToPartner(int partnerId, SendEmailDto dto);
+
 
     }
 }

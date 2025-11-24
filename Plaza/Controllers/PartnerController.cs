@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.Entites;
 using PlazaCore.ServiceContract;
+using Shared.DTO.Email;
 using Shared.DTO.Partner;
 using Shared.Security;
 
@@ -141,6 +142,23 @@ namespace Plaza.Controllers
             await _partnerService.DeletePartnerAsync(id);
             return NoContent();
         }
+
+        [HttpPost("{partnerId}/send-email")]
+        public async Task<IActionResult> SendEmailToPartner(string partnerId, SendEmailDto dto)
+        {
+            int id;
+            try
+            {
+                id = IdEncoder.DecodeId(partnerId);
+            }
+            catch
+            {
+                return BadRequest("Invalid hotel ID");
+            }
+            await _partnerService.SendEmailToPartner(id, dto);
+            return Ok(new { message = "Email sent successfully" });
+        }
+
     }
 
 }

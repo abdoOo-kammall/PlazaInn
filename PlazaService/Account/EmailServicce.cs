@@ -21,7 +21,10 @@ public class EmailService : IEmailService
                 _configuration["Email:Password"]
             ),
             EnableSsl = true,
+
         };
+        htmlBody += _configuration["Email:Signature"];
+
 
         var mailMessage = new MailMessage
         {

@@ -8,16 +8,21 @@ using PlazaCore.Entites;
 using PlazaCore.RepositoryContract;
 using Microsoft.EntityFrameworkCore;
 using PlazaCore.Specification.PartnerSpecification;
+using PlazaCore.ServiceContract.Account;
+using PlazaRepository.PartnerRepo;
+using Shared.DTO.Email;
 
 namespace PlazaService.Partner
 {
     public class PartnerService : IPartnerService
     {
         private readonly IPartnerRepository _partnerRepo;
+        private readonly IEmailService _emailService;
 
-        public PartnerService(IPartnerRepository partnerRepository)
+        public PartnerService(IPartnerRepository partnerRepository , IEmailService emailService)
         {
             this._partnerRepo = partnerRepository;
+            this._emailService = emailService;
         }
         public async Task AddPartnerAsync(Partners partner)
         {
@@ -58,6 +63,21 @@ namespace PlazaService.Partner
             _partnerRepo.UpdatePartnerWithHotelsAsync(partner);
             await _partnerRepo.SaveChangesAsync();
         }
+        public async Task SendEmailToPartner(int partnerId, SendEmailDto dto)
+        {
+
+            var partner = await _partnerRepo.GetByIdAsync(partnerId);
+
+            if (partner == null)
+                throw new Exception("Partner not found");
+
+            await _emailService.SendEmailAsync(
+                partner.Email,
+                dto.Subject,
+                dto.Body
+            );
+        }
+
     }
 }
     
