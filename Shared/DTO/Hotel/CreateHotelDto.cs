@@ -65,5 +65,6 @@ namespace Shared.DTO.Hotel
 
         [MinLength(1, ErrorMessage = "At least one image ID is required")]
         public List<int> ImageIds { get; set; } = new();
+        public int LogoId { get; set; } 
     }
 }

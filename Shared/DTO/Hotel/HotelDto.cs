@@ -47,6 +47,7 @@ namespace Shared.DTO.Hotel
         public int NumOfAvailableSuitesToReserve { get; set; }
         //  Image list
         public List<FileDto> Images { get; set; } = new();
+        public FileDto? Logo { get; set; }
 
         public InsightHotelDto? Insight { get; set; }
 

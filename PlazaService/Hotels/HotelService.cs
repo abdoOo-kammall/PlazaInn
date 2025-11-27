@@ -26,7 +26,7 @@ namespace PlazaService.Hotels
 
             public async Task DeleteHotelAsync(int id)
             {
-                var hotel = await _HotelRepo.GetByIdAsync(id);
+                var hotel = await _HotelRepo.GetByIdAsync(id);  
                 if (hotel != null) { 
                      _HotelRepo.Delete(hotel);
                      await _HotelRepo.SaveChangesAsync();

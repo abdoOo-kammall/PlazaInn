@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.Entites;
 using PlazaCore.ServiceContract;
+using PlazaCore.ServiceContract.Account;
 using Shared.DTO.Email;
+using Shared.DTO.Hotel;
 using Shared.DTO.Partner;
+using Shared.EmailSignture;
 using Shared.Security;
 
 namespace Plaza.Controllers
@@ -16,11 +19,13 @@ namespace Plaza.Controllers
     public class PartnerController : ControllerBase
     {
         private readonly IPartnerService _partnerService;
+        private readonly IHotelService _hotelService;
         private readonly IMapper _mapper;
 
-        public PartnerController(IPartnerService partnerService, IMapper mapper)
+        public PartnerController(IPartnerService partnerService, IHotelService hotelService , IMapper mapper)
         {
             _partnerService = partnerService;
+            this._hotelService = hotelService;
             _mapper = mapper;
         }
 
@@ -95,9 +100,8 @@ namespace Plaza.Controllers
             return Ok();
         }
 
-        // UPDATE
-        [HttpPut]
-        public async Task<ActionResult> Update( string encodedId,UpdatePartnerDto dto)
+        [HttpPut("{encodedId}")]
+        public async Task<ActionResult> Update(string encodedId, UpdatePartnerDto dto)
         {
             int id;
             try
@@ -106,22 +110,29 @@ namespace Plaza.Controllers
             }
             catch
             {
-                return BadRequest("Invalid hotel ID");
+                return BadRequest("Invalid partner ID");
             }
 
             if (!ModelState.IsValid)
                 return BadRequest();
+
             var partnerExist = await _partnerService.GetPartnerAsync(id);
-            if (partnerExist == null) return Ok();
-            var hotelIds = dto.HotelsIds.Select(id => IdEncoder.DecodeId(id)).ToList();
+            if (partnerExist == null)
+                return NotFound();
 
-            var partner = _mapper.Map(dto,partnerExist);
-            partner.Hotels = hotelIds.Select(id => new Hotel { Id = id }).ToList();
+            // Load الفنادق من DB حسب IDs اللي جاية
+            var hotelIds = dto.HotelsIds.Select(hId => IdEncoder.DecodeId(hId)).ToList();
+            var hotels = await _hotelService.GetAllHotelsAsync(); // أو طريقة فلترة حسب hotelIds
+            partnerExist.Hotels = hotels.Where(h => hotelIds.Contains(h.Id)).ToList();
 
-            await _partnerService.UpdatePartnerAsync(partner);
+            // Map باقي البيانات
+            _mapper.Map(dto, partnerExist);
+
+            await _partnerService.UpdatePartnerAsync(partnerExist);
 
             return NoContent();
         }
+
 
         // DELETE
         [HttpDelete("{encodedId}")]
@@ -143,21 +154,61 @@ namespace Plaza.Controllers
             return NoContent();
         }
 
-        [HttpPost("{partnerId}/send-email")]
-        public async Task<IActionResult> SendEmailToPartner(string partnerId, SendEmailDto dto)
+        //[HttpPost("{partnerId}/send-email")]
+        //public async Task<IActionResult> SendEmailToPartner(string partnerId, SendEmailDto dto)
+        //{
+        //    int id;
+        //    try
+        //    {
+        //        id = IdEncoder.DecodeId(partnerId);
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest("Invalid hotel ID");
+        //    }
+        //    await _partnerService.SendEmailToPartner(id, dto);
+        //    return Ok(new { message = "Email sent successfully" });
+        //}
+
+        [HttpPost("broadcastEmail/hotel/{encodedId}")]
+        public async Task<IActionResult> StopSales(string encodedId, SendEmailDto dto)
         {
-            int id;
+            int hotelId;
             try
             {
-                id = IdEncoder.DecodeId(partnerId);
+                hotelId = IdEncoder.DecodeId(encodedId);
             }
             catch
             {
                 return BadRequest("Invalid hotel ID");
             }
-            await _partnerService.SendEmailToPartner(id, dto);
-            return Ok(new { message = "Email sent successfully" });
+            var hotel = await _hotelService.GetHotelAsync(hotelId);
+            if (hotel == null) return BadRequest("hotelId Not Found");
+            var hotelDto = _mapper.Map<HotelDto>(hotel);
+            string? logoUrl = hotelDto.Logo != null ? hotelDto.Logo.Url : hotelDto.Images.FirstOrDefault()?.Url;
+
+
+            var partners = await _partnerService.GetPartnersByHotelAsync(hotelId);
+
+            if (!partners.Any())
+                return Ok(new { message = "No partners found for this hotel" });
+
+            var signatureHtml = EmailSign.BuildHotelSignatureHtml(hotelDto, logoUrl);
+
+
+            dto.Body = dto.Body + signatureHtml;
+
+            foreach (var partner in partners)
+            {
+                if (!string.IsNullOrEmpty(partner.Email))
+                {
+                    await _partnerService.SendEmailToPartner(partner.Id, dto);
+                }
+            }
+
+            return Ok(new { message = "Emails sent to all partners successfully" });
         }
+
 
     }
 

@@ -14,6 +14,7 @@ namespace Shared.Enums
         restaurant,
         cafe,
         restaurantMenu,
-        cafeMenu
+        cafeMenu,
+        logo
     }
 }
