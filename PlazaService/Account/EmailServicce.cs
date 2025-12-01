@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using PlazaCore.ServiceContract.Account;
 
@@ -11,7 +12,7 @@ public class EmailService : IEmailService
         _configuration = configuration;
     }
 
-    public async Task SendEmailAsync(string to, string subject, string htmlBody)
+    public async Task SendEmailAsync(string to, string subject, string htmlBody , List<IFormFile>? attachments = null)
     {
         var smtpClient = new SmtpClient(_configuration["Email:SmtpServer"])
         {
@@ -34,6 +35,18 @@ public class EmailService : IEmailService
             IsBodyHtml = true,
         };
         mailMessage.To.Add(to);
+        if (attachments != null)
+        {
+            foreach (var file in attachments)
+            {
+                if (file.Length > 0)
+                {
+                     var stream = file.OpenReadStream();
+                    var attachment = new Attachment(stream, file.FileName);
+                    mailMessage.Attachments.Add(attachment);
+                }
+            }
+        }
 
         await smtpClient.SendMailAsync(mailMessage);
     }

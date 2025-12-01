@@ -74,7 +74,7 @@ namespace PlazaService.Partner
             await _emailService.SendEmailAsync(
                 partner.Email,
                 dto.Subject,
-                dto.Body
+                dto.Body,dto.Attachments
             );
         }
 

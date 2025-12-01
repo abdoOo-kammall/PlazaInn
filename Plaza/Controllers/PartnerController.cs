@@ -154,24 +154,11 @@ namespace Plaza.Controllers
             return NoContent();
         }
 
-        //[HttpPost("{partnerId}/send-email")]
-        //public async Task<IActionResult> SendEmailToPartner(string partnerId, SendEmailDto dto)
-        //{
-        //    int id;
-        //    try
-        //    {
-        //        id = IdEncoder.DecodeId(partnerId);
-        //    }
-        //    catch
-        //    {
-        //        return BadRequest("Invalid hotel ID");
-        //    }
-        //    await _partnerService.SendEmailToPartner(id, dto);
-        //    return Ok(new { message = "Email sent successfully" });
-        //}
+  
+        
 
         [HttpPost("broadcastEmail/hotel/{encodedId}")]
-        public async Task<IActionResult> StopSales(string encodedId, SendEmailDto dto)
+        public async Task<IActionResult> StopSales(string encodedId, [FromForm] SendEmailDto dto)
         {
             int hotelId;
             try

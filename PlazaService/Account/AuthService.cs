@@ -42,7 +42,7 @@ namespace PlazaService.Account
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var resetLink = $"http://localhost:4200/reset-password?email={email}&token={Uri.EscapeDataString(token)}";
             await _emailService.SendEmailAsync(email, "Reset Password",
-                $"Click <a href='{resetLink}'>here</a> to reset your password.");
+                $"Click <a href='{resetLink}'>here</a> to reset your password.",null);
 
 
         }
