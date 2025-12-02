@@ -41,13 +41,20 @@ public class EmailService : IEmailService
             {
                 if (file.Length > 0)
                 {
-                     var stream = file.OpenReadStream();
-                    var attachment = new Attachment(stream, file.FileName);
+                     var ms = new MemoryStream();
+                    await file.CopyToAsync(ms);
+                    ms.Position = 0;
+
+                    var attachment = new Attachment(ms, file.FileName);
                     mailMessage.Attachments.Add(attachment);
                 }
             }
         }
 
         await smtpClient.SendMailAsync(mailMessage);
+        foreach (var attachment in mailMessage.Attachments)
+        {
+            attachment.ContentStream.Dispose();
+        }
     }
 }

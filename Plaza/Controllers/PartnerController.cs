@@ -185,13 +185,38 @@ namespace Plaza.Controllers
 
             dto.Body = dto.Body + signatureHtml;
 
+            //foreach (var partner in partners)
+            //{
+            //    if (!string.IsNullOrEmpty(partner.Email))
+            //    {
+            //        await _partnerService.SendEmailToPartner(partner.Id, dto);
+            //    }
+            //}
+            var emailTasks = new List<Task>();
+            var semaphore = new SemaphoreSlim(5); // نسمح بـ 5 إيميلات تتبعت في نفس اللحظة
+
             foreach (var partner in partners)
             {
                 if (!string.IsNullOrEmpty(partner.Email))
                 {
-                    await _partnerService.SendEmailToPartner(partner.Id, dto);
+                    await semaphore.WaitAsync();
+
+                    emailTasks.Add(Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await _partnerService.SendEmailToPartner(partner.Id, dto);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    }));
                 }
             }
+
+            await Task.WhenAll(emailTasks);
+
 
             return Ok(new { message = "Emails sent to all partners successfully" });
         }
