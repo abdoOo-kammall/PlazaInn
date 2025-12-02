@@ -11,6 +11,7 @@ using PlazaCore.Specification.PartnerSpecification;
 using PlazaCore.ServiceContract.Account;
 using PlazaRepository.PartnerRepo;
 using Shared.DTO.Email;
+using Shared.Helper;
 
 namespace PlazaService.Partner
 {
@@ -63,19 +64,44 @@ namespace PlazaService.Partner
             _partnerRepo.UpdatePartnerWithHotelsAsync(partner);
             await _partnerRepo.SaveChangesAsync();
         }
-        public async Task SendEmailToPartner(int partnerId, SendEmailDto dto)
+        //public async Task SendEmailToPartner(int partnerId, SendEmailInternal dto)
+        //{
+
+        //    var partner = await _partnerRepo.GetByIdAsync(partnerId);
+
+        //    if (partner == null)
+        //        throw new Exception("Partner not found");
+
+        //    await _emailService.SendEmailAsync(
+        //        partner.Email,
+        //        dto.Subject,
+        //        dto.Body,dto.AttachStreams
+        //    );
+        //}
+        public async Task SendEmailToPartner(int partnerId, SendEmailInternal dto)
         {
-
             var partner = await _partnerRepo.GetByIdAsync(partnerId);
-
             if (partner == null)
                 throw new Exception("Partner not found");
+
+            // clone streams (important)
+            var clonedStreams = dto.AttachStreams?
+                .Select(att => (Methods.CloneStream(att.Stream), att.FileName))
+                .ToList();
 
             await _emailService.SendEmailAsync(
                 partner.Email,
                 dto.Subject,
-                dto.Body,dto.Attachments
+                dto.Body,
+                clonedStreams
             );
+
+            // dispose cloned streams
+            if (clonedStreams != null)
+            {
+                foreach (var c in clonedStreams)
+                    c.Item1.Dispose();
+            }
         }
 
     }

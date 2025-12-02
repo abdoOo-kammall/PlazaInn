@@ -1,17 +1,21 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace Shared.DTO.Email
 {
-    public class SendEmailDto
+    public class SendEmailRequestDto
     {
         public string Subject { get; set; }
         public string Body { get; set; }
         public List<IFormFile>? Attachments { get; set; }
+       
+
+        //public List<(MemoryStream Stream, string FileName)>? AttachStreams { get; set; }
 
     }
 

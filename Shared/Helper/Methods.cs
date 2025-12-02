@@ -11,6 +11,13 @@ namespace Shared.Helper
 {
     public static class Methods
     {
+       public static MemoryStream CloneStream(MemoryStream original)
+        {
+            var newStream = new MemoryStream(original.ToArray());
+            newStream.Position = 0;
+            return newStream;
+        }
+
         public static List<FileDto> ConvertIdsToFileDTO(string fileIdsJson, string entityType = "general")
         {
             if (string.IsNullOrEmpty(fileIdsJson))

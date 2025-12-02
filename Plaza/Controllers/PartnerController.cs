@@ -154,11 +154,75 @@ namespace Plaza.Controllers
             return NoContent();
         }
 
-  
-        
+
+
+
+        //[HttpPost("broadcastEmail/hotel/{encodedId}")]
+        //public async Task<IActionResult> StopSales(string encodedId, [FromForm] SendEmailDto dto)
+        //{
+        //    int hotelId;
+        //    try
+        //    {
+        //        hotelId = IdEncoder.DecodeId(encodedId);
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest("Invalid hotel ID");
+        //    }
+        //    var hotel = await _hotelService.GetHotelAsync(hotelId);
+        //    if (hotel == null) return BadRequest("hotelId Not Found");
+        //    var hotelDto = _mapper.Map<HotelDto>(hotel);
+        //    string? logoUrl = hotelDto.Logo != null ? hotelDto.Logo.Url : hotelDto.Images.FirstOrDefault()?.Url;
+
+
+        //    var partners = await _partnerService.GetPartnersByHotelAsync(hotelId);
+
+        //    if (!partners.Any())
+        //        return Ok(new { message = "No partners found for this hotel" });
+
+        //    var signatureHtml = EmailSign.BuildHotelSignatureHtml(hotelDto, logoUrl);
+
+
+        //    dto.Body = dto.Body + signatureHtml;
+
+        //    //foreach (var partner in partners)
+        //    //{
+        //    //    if (!string.IsNullOrEmpty(partner.Email))
+        //    //    {
+        //    //        await _partnerService.SendEmailToPartner(partner.Id, dto);
+        //    //    }
+        //    //}
+        //    var emailTasks = new List<Task>();
+        //    var semaphore = new SemaphoreSlim(5); // نسمح بـ 5 إيميلات تتبعت في نفس اللحظة
+
+        //    foreach (var partner in partners)
+        //    {
+        //        if (!string.IsNullOrEmpty(partner.Email))
+        //        {
+        //            await semaphore.WaitAsync();
+
+        //            emailTasks.Add(Task.Run(async () =>
+        //            {
+        //                try
+        //                {
+        //                    await _partnerService.SendEmailToPartner(partner.Id, dto);
+        //                }
+        //                finally
+        //                {
+        //                    semaphore.Release();
+        //                }
+        //            }));
+        //        }
+        //    }
+
+        //    await Task.WhenAll(emailTasks);
+
+
+        //    return Ok(new { message = "Emails sent to all partners successfully" });
+        //}
 
         [HttpPost("broadcastEmail/hotel/{encodedId}")]
-        public async Task<IActionResult> StopSales(string encodedId, [FromForm] SendEmailDto dto)
+        public async Task<IActionResult> StopSales(string encodedId, [FromForm] SendEmailRequestDto dto)
         {
             int hotelId;
             try
@@ -169,54 +233,67 @@ namespace Plaza.Controllers
             {
                 return BadRequest("Invalid hotel ID");
             }
-            var hotel = await _hotelService.GetHotelAsync(hotelId);
-            if (hotel == null) return BadRequest("hotelId Not Found");
-            var hotelDto = _mapper.Map<HotelDto>(hotel);
-            string? logoUrl = hotelDto.Logo != null ? hotelDto.Logo.Url : hotelDto.Images.FirstOrDefault()?.Url;
 
+            var hotel = await _hotelService.GetHotelAsync(hotelId);
+            if (hotel == null)
+                return BadRequest("hotelId Not Found");
+
+            var hotelDto = _mapper.Map<HotelDto>(hotel);
+            string? logoUrl = hotelDto.Logo?.Url ?? hotelDto.Images.FirstOrDefault()?.Url;
 
             var partners = await _partnerService.GetPartnersByHotelAsync(hotelId);
-
             if (!partners.Any())
                 return Ok(new { message = "No partners found for this hotel" });
 
             var signatureHtml = EmailSign.BuildHotelSignatureHtml(hotelDto, logoUrl);
 
+            // هنا بعمل النسخة الداخلية
+            var internalDto = new SendEmailInternal
+            {
+                Subject = dto.Subject,
+                Body = dto.Body + signatureHtml,
+                AttachStreams = new List<(MemoryStream Stream, string FileName)>()
+            };
 
-            dto.Body = dto.Body + signatureHtml;
+            // قراءة الملفات مرة واحدة فقط
+            if (dto.Attachments != null)
+            {
+                foreach (var file in dto.Attachments)
+                {
+                    var ms = new MemoryStream();
+                    await file.CopyToAsync(ms);
+                    ms.Position = 0;
+                    internalDto.AttachStreams.Add((ms, file.FileName));
+                }
+            }
 
-            //foreach (var partner in partners)
-            //{
-            //    if (!string.IsNullOrEmpty(partner.Email))
-            //    {
-            //        await _partnerService.SendEmailToPartner(partner.Id, dto);
-            //    }
-            //}
             var emailTasks = new List<Task>();
-            var semaphore = new SemaphoreSlim(5); // نسمح بـ 5 إيميلات تتبعت في نفس اللحظة
+            var semaphore = new SemaphoreSlim(5);
 
             foreach (var partner in partners)
             {
-                if (!string.IsNullOrEmpty(partner.Email))
-                {
-                    await semaphore.WaitAsync();
+                if (string.IsNullOrEmpty(partner.Email))
+                    continue;
 
-                    emailTasks.Add(Task.Run(async () =>
+                await semaphore.WaitAsync();
+
+                emailTasks.Add(Task.Run(async () =>
+                {
+                    try
                     {
-                        try
-                        {
-                            await _partnerService.SendEmailToPartner(partner.Id, dto);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    }));
-                }
+                        await _partnerService.SendEmailToPartner(partner.Id, internalDto);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
             }
 
             await Task.WhenAll(emailTasks);
 
+            foreach (var att in internalDto.AttachStreams)
+                att.Stream.Dispose();
 
             return Ok(new { message = "Emails sent to all partners successfully" });
         }

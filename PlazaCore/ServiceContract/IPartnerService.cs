@@ -17,7 +17,7 @@ namespace PlazaCore.ServiceContract
         Task UpdatePartnerAsync(Partners partner);
         Task DeletePartnerAsync(int id);
         Task<IEnumerable<Partners>> GetPartnersByHotelAsync(int hotelId);
-        Task SendEmailToPartner(int partnerId, SendEmailDto dto);
+        Task SendEmailToPartner(int partnerId, SendEmailInternal dto);
 
 
     }

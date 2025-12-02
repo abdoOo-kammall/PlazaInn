@@ -12,7 +12,7 @@ public class EmailService : IEmailService
         _configuration = configuration;
     }
 
-    public async Task SendEmailAsync(string to, string subject, string htmlBody , List<IFormFile>? attachments = null)
+    public async Task SendEmailAsync(string to, string subject, string htmlBody , List<(MemoryStream Stream, string FileName)>? attachments = null)
     {
         var smtpClient = new SmtpClient(_configuration["Email:SmtpServer"])
         {
@@ -37,19 +37,14 @@ public class EmailService : IEmailService
         mailMessage.To.Add(to);
         if (attachments != null)
         {
-            foreach (var file in attachments)
+            foreach (var att in attachments)
             {
-                if (file.Length > 0)
-                {
-                     var ms = new MemoryStream();
-                    await file.CopyToAsync(ms);
-                    ms.Position = 0;
-
-                    var attachment = new Attachment(ms, file.FileName);
-                    mailMessage.Attachments.Add(attachment);
-                }
+                att.Stream.Position = 0;
+                var attachment = new Attachment(att.Stream, att.FileName);
+                mailMessage.Attachments.Add(attachment);
             }
         }
+
 
         await smtpClient.SendMailAsync(mailMessage);
         foreach (var attachment in mailMessage.Attachments)

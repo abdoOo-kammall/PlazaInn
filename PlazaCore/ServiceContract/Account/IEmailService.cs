@@ -9,7 +9,7 @@ namespace PlazaCore.ServiceContract.Account
 {
     public interface IEmailService
     {
-        public Task SendEmailAsync (string to , string subject, string body, List<IFormFile>? attachments);
+        public Task SendEmailAsync (string to , string subject, string body, List<(MemoryStream Stream, string FileName)>? attachments);
 
     }
 }
