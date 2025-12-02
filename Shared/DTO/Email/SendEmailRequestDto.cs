@@ -15,7 +15,6 @@ namespace Shared.DTO.Email
         public List<IFormFile>? Attachments { get; set; }
        
 
-        //public List<(MemoryStream Stream, string FileName)>? AttachStreams { get; set; }
 
     }
 

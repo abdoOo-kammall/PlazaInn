@@ -27,8 +27,7 @@ namespace PlazaService.Users
 
         public async Task<IdentityResult> addUserAsync(ApplicationUser user, string password, Role role)
         {
-            //if (!await _roleManager.RoleExistsAsync(role)) ;
-            //await _roleManager.CreateAsync(new IdentityRole(role));
+          
             if (!Enum.IsDefined(typeof(Role), role))
                 throw new ArgumentException($"Invalid role: {role}");
             var result = await _userManager.CreateAsync(user , password);

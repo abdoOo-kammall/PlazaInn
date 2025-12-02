@@ -58,30 +58,7 @@ namespace PlazaService.InsightHotels
             await _insightHotelRepo.SaveChangesAsync();
         }
 
-        //public async Task<string> UploadMenuPdfAsync(int hotelId, IFormFile file, MenuType menuType)
-        //{
-        //    var hotelInsight = await _insightHotelRepo.GetByIdAsync(hotelId);
-        //    if (hotelInsight == null) throw new Exception("InsightHotel not found");
-
-        //    if (Path.GetExtension(file.FileName).ToLower() != ".pdf")
-        //        throw new Exception("Only PDF allowed");
-
-          
-        //    var url = await _menuService.SaveMenuPdfAsync(file, menuType);
-        //    var baseUrl = "http://plazainn.runasp.net/";
-        //    var fullUrl = $"{baseUrl}{url}";
-
-        //    if (menuType.ToString() == "restaurant")
-        //        hotelInsight.RestaurantMenuPdf = fullUrl;
-        //    else if (menuType.ToString() == "cafe")
-        //        hotelInsight.CafeMenuPdf = fullUrl;
-        //    else
-        //        throw new Exception("Invalid menu type");
-
-        //    await _insightHotelRepo.SaveChangesAsync();
-
-        //    return fullUrl;
-        //}
+        
 
     }
 }

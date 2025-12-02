@@ -30,7 +30,6 @@ namespace Plaza.Controllers
             var userDtos = new List<UserDTO>();
             foreach (var user in users) { 
                 var actualUser = _mapper.Map<UserDTO>(user);
-                //actualUser.Role = await _userService.getUserRoleAsync(user)?? "No Role";
                 var roleString = await _userService.getUserRoleAsync(user);
                 if (Enum.TryParse<Role>(roleString, out var roleEnum))
                     actualUser.Role = roleEnum;

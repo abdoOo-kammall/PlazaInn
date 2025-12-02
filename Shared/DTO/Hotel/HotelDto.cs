@@ -39,10 +39,7 @@ namespace Shared.DTO.Hotel
         public string? WhatsApp { get; set; }
         public string? Space { get; set; }
 
-        //  Calculated fields
-        //public int NumOfAllRooms { get; set; }
-        //public int NumOfAllSuites { get; set; }
-
+     
         public int NumOfAvailableRoomsToReserve { get; set; }
         public int NumOfAvailableSuitesToReserve { get; set; }
         //  Image list

@@ -37,7 +37,6 @@ namespace Plaza.Extensions
                 .AddEntityFrameworkStores<PlazaDbContext>()
                 .AddDefaultTokenProviders();
             services.AddScoped<IHotelService, HotelService>();
-            //services.AddAutoMapper(typeof(HotelMapping).Assembly);
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

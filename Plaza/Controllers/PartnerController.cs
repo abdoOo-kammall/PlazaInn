@@ -29,7 +29,6 @@ namespace Plaza.Controllers
             _mapper = mapper;
         }
 
-        // GET ALL
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PartnerDto>>> GetAll()
         {
@@ -37,7 +36,6 @@ namespace Plaza.Controllers
             return Ok(_mapper.Map<IEnumerable<PartnerDto>>(partners));
         }
 
-        // GET BY ID
         [HttpGet("{encodedId}")]
         public async Task<ActionResult<PartnerDto>> Get(string encodedId)
         {
@@ -59,7 +57,6 @@ namespace Plaza.Controllers
             return Ok(_mapper.Map<PartnerDto>(partner));
         }
 
-        // GET BY HOTEL
         [HttpGet("hotel/{encodedId}")]
         public async Task<ActionResult<IEnumerable<PartnerOnlyDto>>> GetByHotel(string encodedId)
         {
@@ -83,7 +80,6 @@ namespace Plaza.Controllers
             return Ok(_mapper.Map<IEnumerable<PartnerOnlyDto>>(partners));
         }
 
-        // ADD
         [HttpPost]
         public async Task<ActionResult> Add(CreatePartnerDto dto)
         {
@@ -97,7 +93,7 @@ namespace Plaza.Controllers
 
             await _partnerService.AddPartnerAsync(partner);
 
-            return Ok();
+            return Created();
         }
 
         [HttpPut("{encodedId}")]
@@ -120,12 +116,10 @@ namespace Plaza.Controllers
             if (partnerExist == null)
                 return NotFound();
 
-            // Load الفنادق من DB حسب IDs اللي جاية
             var hotelIds = dto.HotelsIds.Select(hId => IdEncoder.DecodeId(hId)).ToList();
-            var hotels = await _hotelService.GetAllHotelsAsync(); // أو طريقة فلترة حسب hotelIds
+            var hotels = await _hotelService.GetAllHotelsAsync(); 
             partnerExist.Hotels = hotels.Where(h => hotelIds.Contains(h.Id)).ToList();
 
-            // Map باقي البيانات
             _mapper.Map(dto, partnerExist);
 
             await _partnerService.UpdatePartnerAsync(partnerExist);
@@ -134,7 +128,6 @@ namespace Plaza.Controllers
         }
 
 
-        // DELETE
         [HttpDelete("{encodedId}")]
         public async Task<ActionResult> Delete(string encodedId)
 
@@ -156,71 +149,7 @@ namespace Plaza.Controllers
 
 
 
-
-        //[HttpPost("broadcastEmail/hotel/{encodedId}")]
-        //public async Task<IActionResult> StopSales(string encodedId, [FromForm] SendEmailDto dto)
-        //{
-        //    int hotelId;
-        //    try
-        //    {
-        //        hotelId = IdEncoder.DecodeId(encodedId);
-        //    }
-        //    catch
-        //    {
-        //        return BadRequest("Invalid hotel ID");
-        //    }
-        //    var hotel = await _hotelService.GetHotelAsync(hotelId);
-        //    if (hotel == null) return BadRequest("hotelId Not Found");
-        //    var hotelDto = _mapper.Map<HotelDto>(hotel);
-        //    string? logoUrl = hotelDto.Logo != null ? hotelDto.Logo.Url : hotelDto.Images.FirstOrDefault()?.Url;
-
-
-        //    var partners = await _partnerService.GetPartnersByHotelAsync(hotelId);
-
-        //    if (!partners.Any())
-        //        return Ok(new { message = "No partners found for this hotel" });
-
-        //    var signatureHtml = EmailSign.BuildHotelSignatureHtml(hotelDto, logoUrl);
-
-
-        //    dto.Body = dto.Body + signatureHtml;
-
-        //    //foreach (var partner in partners)
-        //    //{
-        //    //    if (!string.IsNullOrEmpty(partner.Email))
-        //    //    {
-        //    //        await _partnerService.SendEmailToPartner(partner.Id, dto);
-        //    //    }
-        //    //}
-        //    var emailTasks = new List<Task>();
-        //    var semaphore = new SemaphoreSlim(5); // نسمح بـ 5 إيميلات تتبعت في نفس اللحظة
-
-        //    foreach (var partner in partners)
-        //    {
-        //        if (!string.IsNullOrEmpty(partner.Email))
-        //        {
-        //            await semaphore.WaitAsync();
-
-        //            emailTasks.Add(Task.Run(async () =>
-        //            {
-        //                try
-        //                {
-        //                    await _partnerService.SendEmailToPartner(partner.Id, dto);
-        //                }
-        //                finally
-        //                {
-        //                    semaphore.Release();
-        //                }
-        //            }));
-        //        }
-        //    }
-
-        //    await Task.WhenAll(emailTasks);
-
-
-        //    return Ok(new { message = "Emails sent to all partners successfully" });
-        //}
-
+    
         [HttpPost("broadcastEmail/hotel/{encodedId}")]
         public async Task<IActionResult> StopSales(string encodedId, [FromForm] SendEmailRequestDto dto)
         {
@@ -247,7 +176,6 @@ namespace Plaza.Controllers
 
             var signatureHtml = EmailSign.BuildHotelSignatureHtml(hotelDto, logoUrl);
 
-            // هنا بعمل النسخة الداخلية
             var internalDto = new SendEmailInternal
             {
                 Subject = dto.Subject,
@@ -255,7 +183,6 @@ namespace Plaza.Controllers
                 AttachStreams = new List<(MemoryStream Stream, string FileName)>()
             };
 
-            // قراءة الملفات مرة واحدة فقط
             if (dto.Attachments != null)
             {
                 foreach (var file in dto.Attachments)

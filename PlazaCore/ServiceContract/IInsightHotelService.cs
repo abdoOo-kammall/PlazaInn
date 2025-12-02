@@ -15,7 +15,6 @@ namespace PlazaCore.ServiceContract
         Task<InsightHotel?> GetByHotelIdAsync(int hotelId);
         Task UpdateInsightHotelAsync(InsightHotel insightHotel);
         Task DeleteInsightHotelAsync(int hotelId);
-        //Task<string> UploadMenuPdfAsync(int hotelId, IFormFile file, MenuType menuType);
 
 
     }

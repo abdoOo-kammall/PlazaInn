@@ -60,7 +60,6 @@ namespace Plaza.Controllers
                 var hotel =  _mapper.Map<Hotel>(hotelDto);
                 await _hotelService.AddHotelAsync(hotel);
 
-            //await _hotelService.UpdateHotelAsync(hotel);
 
             var createdDto = _mapper.Map<HotelDto>(hotel);
             var encodedId = IdEncoder.EncodeId(hotel.Id);
@@ -72,10 +71,7 @@ namespace Plaza.Controllers
             [HttpPut("{encodedId}")]
             public async Task<ActionResult> UpdateHotel(string encodedId, [FromBody] UpdateHotelDTO hotelDto) {
 
-            //if (id != hotelDto.Id )
-            //{
-            //    return BadRequest();
-            //}
+           
             int id;
             try
             {

@@ -9,7 +9,6 @@ namespace Shared.DTO.Hotel
 {
     public class UpdateHotelDTO : CreateHotelDto
     {
-        //public int Id { get; set; }
 
        
 

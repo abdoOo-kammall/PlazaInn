@@ -65,17 +65,17 @@
             {
                 _dbSet.Remove(entity);
             }
-
-            // ---------- Private Helpers ----------
-
-            private IQueryable<T> ApplySpecification(ISpecification<T> spec)
-            {
-                return SpecificationEvaluator<T>.GetQuery(_dbSet.AsQueryable(), spec);
-            }
-
             public async Task<int> SaveChangesAsync()
             {
                 return await _context.SaveChangesAsync();
             }
+            // ---------- Private Helpers ----------
+
+            private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+                {
+                    return SpecificationEvaluator<T>.GetQuery(_dbSet.AsQueryable(), spec);
+                }
+
+          
         }
     }

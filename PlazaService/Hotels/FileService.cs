@@ -26,7 +26,7 @@ namespace PlazaService.Hotels
 
         public async Task<List<int>> SaveFilesAsync(List<IFormFile> files, PlazaInnType? type)
         {
-            //var savedIds = new List<int>();
+          
             try
             {
                 #region old code 
@@ -83,7 +83,6 @@ namespace PlazaService.Hotels
                 #endregion
 
                 var savedIds = new List<int>();
-                //var folderName = type.ToString().ToLower().Contains("pdf") ? "menus" : "images";
                 var folderName = type.ToString().ToLower().Contains("menu") ? "menus" : "images";
 
                 var root = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
