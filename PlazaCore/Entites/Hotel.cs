@@ -39,5 +39,7 @@ namespace PlazaCore.Entites
         public ICollection<Room> Rooms { get; set; } = new HashSet<Room>();
         public InsightHotel? InsightHotel { get; set; }
         public ICollection<Partners> Partners { get; set; } = new HashSet<Partners>();
+        public ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();
+
     }
 }

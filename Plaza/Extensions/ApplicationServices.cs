@@ -11,6 +11,7 @@ using PlazaRepository;
 using PlazaRepository.PartnerRepo;
 using PlazaRepository.UserRepo;
 using PlazaService.Account;
+using PlazaService.BookingService;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
 using PlazaService.Menu;
@@ -52,6 +53,7 @@ namespace Plaza.Extensions
             services.AddScoped<IPartnerService, PartnerService>();
             services.AddScoped<IPartnerRepository, PartnerRepository>();
             services.AddHttpClient<IPaymobService, PaymentService>();
+            services.AddScoped<IBookingService, BookingService>();
 
 
 

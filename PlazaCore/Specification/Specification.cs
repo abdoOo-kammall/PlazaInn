@@ -7,7 +7,7 @@ namespace PlazaCore.Specification
 {
     public class Specification<T> : ISpecification<T> where T : BaseEntity
     {
-        public Expression<Func<T, bool>> Criteria { get; private set; }
+        public Expression<Func<T, bool>> Criteria { get;  set; }
         public List<Expression<Func<T, object>>> Includes { get; } = new();
         public Expression<Func<T, object>> OrderBy { get; private set; }
         public Expression<Func<T, object>> OrderByDesc { get; private set; }

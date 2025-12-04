@@ -17,6 +17,7 @@ namespace PlazaCore.Entites
         public string? ImageIds { get; set; }
         public Dictionary<string, bool> Features { get; set; } = new();
 
+        public ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();
 
 
 

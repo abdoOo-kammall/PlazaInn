@@ -235,6 +235,70 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.Booking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Adults")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CheckIn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CheckOut")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Children")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HotelId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PaymentReference")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomsBooked")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HotelId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Bookings");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>
                 {
                     b.Property<int>("Id")
@@ -457,9 +521,6 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<string>("ImageIds")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");
 
@@ -542,6 +603,25 @@ namespace PlazaRepository.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.Booking", b =>
+                {
+                    b.HasOne("PlazaCore.Entites.Hotel", "Hotel")
+                        .WithMany("Bookings")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlazaCore.Entites.Room", "Room")
+                        .WithMany("Bookings")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.InsightHotel", b =>
                 {
                     b.HasOne("PlazaCore.Entites.Hotel", "Hotel")
@@ -566,9 +646,16 @@ namespace PlazaRepository.Data.Migrations
 
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("InsightHotel");
 
                     b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Room", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }
