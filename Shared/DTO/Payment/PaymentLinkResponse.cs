@@ -8,6 +8,7 @@ namespace Shared.DTO.Payment
 {
     public class PaymentLinkResponse
     {
-        public string PaymentUrl { get; set; }
+        public string shorten_url { get; set; }
+        public string client_url { get; set; }
     }
 }
