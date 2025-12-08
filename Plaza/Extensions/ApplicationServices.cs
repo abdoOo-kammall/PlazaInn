@@ -19,6 +19,7 @@ using PlazaService.InsightHotels;
 using PlazaService.Menu;
 using PlazaService.Partner;
 using PlazaService.Payment;
+using PlazaService.SectionImagesService;
 using PlazaService.Users;
 
 namespace Plaza.Extensions
@@ -58,6 +59,7 @@ namespace Plaza.Extensions
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IHomeSliderService, HomeSliderService>();
             services.AddScoped<IAboutUsService, AboutUsService>();
+            services.AddScoped<ISectionImageService, SectionImageService>();
 
 
 

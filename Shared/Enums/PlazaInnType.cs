@@ -17,6 +17,7 @@ namespace Shared.Enums
         cafeMenu,
         logo,
         homeSlider,
-        aboutUs
+        aboutUs,
+        None
     }
 }
