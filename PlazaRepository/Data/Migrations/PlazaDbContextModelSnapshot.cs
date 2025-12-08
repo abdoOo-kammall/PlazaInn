@@ -556,6 +556,9 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("ExtraBed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Features")
                         .HasColumnType("nvarchar(max)");
 
@@ -567,6 +570,15 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<int>("MaxSleep")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameAr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PriceForExtraBed")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");

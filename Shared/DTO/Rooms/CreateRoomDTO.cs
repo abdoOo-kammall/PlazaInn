@@ -9,8 +9,12 @@ namespace Shared.DTO.Rooms
     {
         [Required(ErrorMessage = "HotelId is required")]
         public string HotelId { get; set; }
+        [Required(ErrorMessage = "Name is required")]
 
-       
+        public string? Name { get; set; }
+        [Required(ErrorMessage = "NameAr is required")]
+
+        public string? NameAr { get; set; }
 
         [Required(ErrorMessage = "Room type is required")]
         public RoomType Type { get; set; }
@@ -18,8 +22,10 @@ namespace Shared.DTO.Rooms
         [Range(1, double.MaxValue, ErrorMessage = "Price per night must be greater than 0")]
         public decimal PricePerNight { get; set; }
         public Dictionary<string, bool> Features { get; set; } = new();
+        public bool ExtraBed { get; set; } 
+        public decimal PriceForExtraBed { get; set; } 
 
-        public bool IsAvailable { get; set; } = true;
+        public int MaxSleep { get; set; }
 
         [MinLength(1, ErrorMessage = "At least one image is required")]
         public List<int> ImageIds { get; set; } = new();
