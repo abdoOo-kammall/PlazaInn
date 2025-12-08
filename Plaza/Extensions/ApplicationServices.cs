@@ -10,8 +10,10 @@ using PlazaCore.ServiceContract.Account;
 using PlazaRepository;
 using PlazaRepository.PartnerRepo;
 using PlazaRepository.UserRepo;
+using PlazaService.AboutUsImages;
 using PlazaService.Account;
 using PlazaService.BookingService;
+using PlazaService.HomeSliders;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
 using PlazaService.Menu;
@@ -54,6 +56,9 @@ namespace Plaza.Extensions
             services.AddScoped<IPartnerRepository, PartnerRepository>();
             services.AddHttpClient<IPaymobService, PaymentService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IHomeSliderService, HomeSliderService>();
+            services.AddScoped<IAboutUsService, AboutUsService>();
+
 
 
 

@@ -28,6 +28,8 @@ namespace PlazaRepository
         public DbSet<Image> Images { get; set; }
         public   DbSet<Partners> Partners { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<HomeSlider> HomeSlider { get; set; }
+        public DbSet<AboutUs> AboutUs { get; set; }
 
     }
 }

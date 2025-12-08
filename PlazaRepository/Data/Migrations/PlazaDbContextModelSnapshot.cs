@@ -170,6 +170,28 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.AboutUs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AboutUs");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -297,6 +319,28 @@ namespace PlazaRepository.Data.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.HomeSlider", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HomeSlider");
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>
@@ -520,6 +564,9 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<string>("ImageIds")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxSleep")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");
