@@ -10,12 +10,15 @@ namespace Shared.DTO.Booking
     {
         public string EncodedHotelId { get; set; } = null!;
         public string EncodedRoomId { get; set; } = null!;
+        public int RoomsCount { get; set; } = 1;
+
         public int Adults { get; set; }
         public int Children { get; set; }
         public DateTime CheckIn { get; set; }
         public DateTime CheckOut { get; set; }
+        public bool ExtraBed { get; set; } = false;
+        public int ExtraBedCount { get; set; } = 0;
 
-      
         public string CustomerName { get; set; } = null!;
         public string CustomerEmail { get; set; } = null!;
         //public string CustomerPhone { get; set; } = null!;

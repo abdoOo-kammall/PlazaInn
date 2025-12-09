@@ -329,10 +329,22 @@ namespace PlazaRepository.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ButtonLink")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ButtonText")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubTittle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tittle")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
