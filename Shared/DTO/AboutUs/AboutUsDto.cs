@@ -10,6 +10,9 @@ namespace Shared.DTO.AboutUs
     public class AboutUsDto
     {
         public int Id { get; set; }
+        public string? Tittle { get; set; }
+        public string? SubTittle { get; set; }
+        public string? Description { get; set; }
         public List<FileDto> Images { get; set; }
     }
 }

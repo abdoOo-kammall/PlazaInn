@@ -10,10 +10,10 @@ namespace PlazaCore.Specification.BookingSpecification
     public class BookingInDateRangeSpec : Specification<Booking>
     {
        
-            public BookingInDateRangeSpec(int roomId, DateTime checkIn, DateTime checkOut)
+            public BookingInDateRangeSpec(int hotelId, DateTime checkIn, DateTime checkOut)
             {
                 Criteria = b =>
-                    b.RoomId == roomId &&
+                    b.HotelId == hotelId &&
                     b.CheckIn < checkOut &&
                     b.CheckOut > checkIn;
 

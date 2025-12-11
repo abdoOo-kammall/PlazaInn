@@ -181,7 +181,16 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubTittle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tittle")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
