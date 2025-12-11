@@ -330,6 +330,43 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.ContactUs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Facebook")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Instagram")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LinkedIn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WhatsApp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactUs");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.HomeSlider", b =>
                 {
                     b.Property<int>("Id")
@@ -617,6 +654,33 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.WorkingHour", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CloseTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ContactUsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OpenTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactUsId");
+
+                    b.ToTable("workingHours");
+                });
+
             modelBuilder.Entity("HotelPartners", b =>
                 {
                     b.HasOne("PlazaCore.Entites.Hotel", null)
@@ -722,6 +786,22 @@ namespace PlazaRepository.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.WorkingHour", b =>
+                {
+                    b.HasOne("PlazaCore.Entites.ContactUs", "ContactUs")
+                        .WithMany("workingHours")
+                        .HasForeignKey("ContactUsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContactUs");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.ContactUs", b =>
+                {
+                    b.Navigation("workingHours");
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>
