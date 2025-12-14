@@ -43,14 +43,15 @@ namespace PlazaApi.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateContactUsDto dto)
         {
             await _contactUsService.UpdateContactUs(id, dto);
-            return Ok(new { message = "Updated Successfully" });
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _contactUsService.DeleteContactUs(id);
-            return Ok(new { message = "Deleted Successfully" });
+            return NoContent();
+
         }
     }
 }

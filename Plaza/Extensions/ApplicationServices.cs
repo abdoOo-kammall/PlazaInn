@@ -13,6 +13,7 @@ using PlazaRepository.UserRepo;
 using PlazaService.AboutUsImages;
 using PlazaService.Account;
 //using PlazaService.BookingService;
+using PlazaService.ContactUsWithWorkingHours;
 using PlazaService.HomeSliders;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
@@ -60,6 +61,7 @@ namespace Plaza.Extensions
             services.AddScoped<IHomeSliderService, HomeSliderService>();
             services.AddScoped<IAboutUsService, AboutUsService>();
             services.AddScoped<ISectionImageService, SectionImageService>();
+            services.AddScoped<IContactUsService, ContactUsService>();
 
 
 
