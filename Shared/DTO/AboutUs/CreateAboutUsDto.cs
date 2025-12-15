@@ -11,6 +11,10 @@ namespace Shared.DTO.AboutUs
         public string? Tittle { get; set; }
         public string? SubTittle { get; set; }
         public string? Description { get; set; }
-        public List<int> ImagesId { get; set; }
+        //public List<int> ImagesId { get; set; }
+        public int Square1ImageId { get; set; }
+        public int CircleImageId { get; set; }
+        public int Square2ImageId { get; set; }
+
     }
 }

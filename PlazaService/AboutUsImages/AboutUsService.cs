@@ -28,23 +28,24 @@ namespace PlazaService.AboutUsImages
             await _repo.SaveChangesAsync();
         }
 
-        public async Task deleteAboutUsImages(int id)
-        {
-            var aboutUsImages = await _repo.GetByIdAsync(id);
-            if (aboutUsImages != null) {
-                _repo.Delete(aboutUsImages);
-                await _repo.SaveChangesAsync();
-                
-            }
-        }
+        //public async Task deleteAboutUsImages(int id)
+        //{
+        //    var aboutUsImages = await _repo.GetByIdAsync(id);
+        //    if (aboutUsImages != null)
+        //    {
+        //        _repo.Delete(aboutUsImages);
+        //        await _repo.SaveChangesAsync();
 
-        public async Task<AboutUsDto> getAboutUsImagesById(int id)
-        {
+        //    }
+        //}
 
-            var aboutUsImage =  await _repo.GetByIdAsync(id);
-            return _mapper.Map<AboutUsDto>(aboutUsImage);
+        //public async Task<AboutUsDto> getAboutUsImagesById(int id)
+        //{
 
-        }
+        //    var aboutUsImage =  await _repo.GetByIdAsync(id);
+        //    return _mapper.Map<AboutUsDto>(aboutUsImage);
+
+        //}
 
         public async Task<IEnumerable<AboutUsDto>> getAllAboutUsImages()
         {

@@ -178,13 +178,19 @@ namespace PlazaRepository.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CircleImageId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageIds")
+                    b.Property<string>("Square1ImageId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Square2ImageId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SubTittle")

@@ -12,6 +12,8 @@ using PlazaRepository.PartnerRepo;
 using PlazaRepository.UserRepo;
 using PlazaService.AboutUsImages;
 using PlazaService.Account;
+using PlazaService.BookingService;
+
 //using PlazaService.BookingService;
 using PlazaService.ContactUsWithWorkingHours;
 using PlazaService.HomeSliders;
@@ -57,11 +59,12 @@ namespace Plaza.Extensions
             services.AddScoped<IPartnerService, PartnerService>();
             services.AddScoped<IPartnerRepository, PartnerRepository>();
             services.AddHttpClient<IPaymobService, PaymentService>();
-            services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IHomeSliderService, HomeSliderService>();
             services.AddScoped<IAboutUsService, AboutUsService>();
             services.AddScoped<ISectionImageService, SectionImageService>();
             services.AddScoped<IContactUsService, ContactUsService>();
+            services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IRoomAvailabilityService, RoomAvailabilityService>();
 
 
 

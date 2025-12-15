@@ -12,12 +12,24 @@ namespace Plaza.Mapping.AboutUsMap
         public AboutUsMapping()
         {
             CreateMap<AboutUs, AboutUsDto>()
-                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => Methods.ConvertIdsToFileDTO(src.ImageIds, "aboutus")));
-                 
+                 .ForMember(dest => dest.Square1ImageId, opt => opt.MapFrom(src => Methods.ConvertIdsToFileDTO(src.Square1ImageId, "aboutus").FirstOrDefault()))
+                 .ForMember(dest => dest.Square2ImageId, opt => opt.MapFrom(src => Methods.ConvertIdsToFileDTO(src.Square2ImageId, "aboutus").FirstOrDefault()))
+                 .ForMember(dest => dest.CircleImageId, opt => opt.MapFrom(src => Methods.ConvertIdsToFileDTO(src.CircleImageId, "aboutus").FirstOrDefault()));
+
+
+
             CreateMap<CreateAboutUsDto, AboutUs>()
-                .ForMember(dest => dest.ImageIds, opt => opt.MapFrom(src => SerializeIds(src.ImagesId)));
+                .ForMember(dest => dest.Square1ImageId, opt => opt.MapFrom(src => SerializeIds(new List<int>() { src.Square1ImageId })))
+                .ForMember(dest => dest.Square2ImageId, opt => opt.MapFrom(src => SerializeIds(new List<int>() { src.Square2ImageId })))
+                .ForMember(dest => dest.CircleImageId, opt => opt.MapFrom(src => SerializeIds(new List<int>() { src.CircleImageId })));
+
+
+
+
             CreateMap<UpdateAboutUsDto, AboutUs>()
-                .ForMember(dest => dest.ImageIds, opt => opt.MapFrom(src => SerializeIds(src.ImagesId)));
+                .ForMember(dest => dest.Square1ImageId, opt => opt.MapFrom(src => SerializeIds(new List<int>() { src.Square1ImageId })))
+                .ForMember(dest => dest.Square2ImageId, opt => opt.MapFrom(src => SerializeIds(new List<int>() { src.Square2ImageId })))
+                .ForMember(dest => dest.CircleImageId, opt => opt.MapFrom(src => SerializeIds(new List<int>() { src.CircleImageId })));
         }
         private static string SerializeIds(List<int> ids)
         {

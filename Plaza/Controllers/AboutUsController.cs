@@ -21,13 +21,13 @@ namespace Plaza.Controllers
             var aboutUsImages = await _aboutUsService.getAllAboutUsImages();
             return Ok(aboutUsImages);
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetAboutUsImage(int id)
-        {
-            var aboutUsImage = await _aboutUsService.getAboutUsImagesById(id);
-            if (aboutUsImage == null) return Ok();
-            return Ok(aboutUsImage);
-        }
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult> GetAboutUsImage(int id)
+        //{
+        //    var aboutUsImage = await _aboutUsService.getAboutUsImagesById(id);
+        //    if (aboutUsImage == null) return Ok();
+        //    return Ok(aboutUsImage);
+        //}
         [HttpPost]
         public async Task<ActionResult> addAboutUsImages(CreateAboutUsDto aboutUsDto)
         {
@@ -42,12 +42,12 @@ namespace Plaza.Controllers
             await _aboutUsService.updateAboutUsImages(id, aboutUsDto);
             return NoContent();
         }
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAboutUsImages(int id)
-        {
+        //[HttpDelete("{id}")]
+        //public async Task<ActionResult> DeleteAboutUsImages(int id)
+        //{
 
-            await _aboutUsService.deleteAboutUsImages(id);
-            return NoContent();
-        }
+        //    await _aboutUsService.deleteAboutUsImages(id);
+        //    return NoContent();
+        //}
     }
 }

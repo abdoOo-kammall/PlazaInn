@@ -22,15 +22,15 @@ namespace PlazaApi.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
-        {
-            var result = await _contactUsService.GetContactUs(id);
-            if (result == null)
-                return NotFound();
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> Get(int id)
+        //{
+        //    var result = await _contactUsService.GetContactUs(id);
+        //    if (result == null)
+        //        return NotFound();
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateContactUsDto dto)
@@ -46,12 +46,12 @@ namespace PlazaApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _contactUsService.DeleteContactUs(id);
-            return NoContent();
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    await _contactUsService.DeleteContactUs(id);
+        //    return NoContent();
 
-        }
+        //}
     }
 }

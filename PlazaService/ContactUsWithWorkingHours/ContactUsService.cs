@@ -30,14 +30,14 @@ namespace PlazaService.ContactUsWithWorkingHours
 
         }
 
-        public async Task DeleteContactUs(int id)
-        {
-            var contactUs = await _repo.GetByIdAsync(id);
-            if (contactUs != null) {
-                _repo.Delete(contactUs);
-                await _repo.SaveChangesAsync();
-            }
-        }
+        //public async Task DeleteContactUs(int id)
+        //{
+        //    var contactUs = await _repo.GetByIdAsync(id);
+        //    if (contactUs != null) {
+        //        _repo.Delete(contactUs);
+        //        await _repo.SaveChangesAsync();
+        //    }
+        //}
 
         public async Task<IEnumerable<ContactUsDto>> GetAllContactUs()
         { 
@@ -46,11 +46,11 @@ namespace PlazaService.ContactUsWithWorkingHours
             return _mapper.Map< IEnumerable<ContactUsDto>>(ContactSUs);
         }
 
-        public async Task<ContactUsDto> GetContactUs(int id)
-        {
-            var ContactUs = await _repo.GetByIdAsync(id);
-            return _mapper.Map<ContactUsDto>(ContactUs);
-        }
+        //public async Task<ContactUsDto> GetContactUs(int id)
+        //{
+        //    var ContactUs = await _repo.GetByIdAsync(id);
+        //    return _mapper.Map<ContactUsDto>(ContactUs);
+        //}
 
         public async Task UpdateContactUs(int id, UpdateContactUsDto contactUsDto)
         {

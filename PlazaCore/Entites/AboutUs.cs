@@ -13,6 +13,10 @@ namespace PlazaCore.Entites
         public string? SubTittle { get; set; }
         public string? Description { get; set; }
 
-        public string? ImageIds { get; set; }
+        public string? Square1ImageId { get; set; }
+        public string? CircleImageId { get; set; }
+        public string? Square2ImageId { get; set; }
+
+
     }
 }
