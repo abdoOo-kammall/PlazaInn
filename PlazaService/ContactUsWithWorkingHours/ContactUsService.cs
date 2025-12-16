@@ -2,6 +2,7 @@
 using PlazaCore.Entites;
 using PlazaCore.RepositoryContract;
 using PlazaCore.ServiceContract;
+using PlazaCore.Specification.ContactUsSpec;
 using PlazaRepository.Data.Migrations;
 using Shared.DTO.ContactUs;
 using System;
@@ -40,9 +41,9 @@ namespace PlazaService.ContactUsWithWorkingHours
         //}
 
         public async Task<IEnumerable<ContactUsDto>> GetAllContactUs()
-        { 
-
-            var ContactSUs = await _repo.GetAllAsync();
+        {
+            var spec = new ContactUsSpecification();
+            var ContactSUs = await _repo.GetAllWithSpecAsync(spec);
             return _mapper.Map< IEnumerable<ContactUsDto>>(ContactSUs);
         }
 
