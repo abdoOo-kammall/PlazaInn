@@ -13,8 +13,8 @@ namespace PlazaCore.Entites
         public int Id { get; set; }
 
         public  DayOfWeek Day { get; set; } 
-        public DateTime OpenTime { get; set; }  
-        public DateTime CloseTime { get; set; } 
+        public TimeOnly OpenTime { get; set; }  
+        public TimeOnly CloseTime { get; set; } 
         [ForeignKey("ContactUs")]
         public int ContactUsId { get; set; }
         public ContactUs ContactUs { get; set; } = null!;

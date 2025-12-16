@@ -671,8 +671,8 @@ namespace PlazaRepository.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CloseTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("CloseTime")
+                        .HasColumnType("time");
 
                     b.Property<int>("ContactUsId")
                         .HasColumnType("int");
@@ -680,8 +680,8 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("OpenTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("OpenTime")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
