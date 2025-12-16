@@ -17,6 +17,6 @@ namespace Shared.DTO.ContactUs
         public string? Facebook { get; set; }
         public string? WhatsApp { get; set; }
         public string? LinkedIn { get; set; }
-        public List<CreateWorkingHourDto> workingHours { get; set; }
+        public List<CreateWorkingHourDto> WorkingHours { get; set; }
     }
 }
