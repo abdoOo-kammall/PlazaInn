@@ -15,7 +15,7 @@ namespace PlazaCore.Entites
         public string? Facebook { get; set; }
         public string? WhatsApp { get; set; }
         public string? LinkedIn { get; set; }
-        public ICollection<WorkingHour> workingHours { get; set; }= new HashSet<WorkingHour>();
+        public ICollection<WorkingHour> WorkingHours { get; set; }= new HashSet<WorkingHour>();
 
     }
 }

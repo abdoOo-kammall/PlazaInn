@@ -11,7 +11,7 @@ namespace PlazaCore.Specification.ContactUsSpec
     {
         public ContactUsSpecification()
         {
-            AddInclude(c => c.workingHours);
+            AddInclude(c => c.WorkingHours);
         }
     }
 }
