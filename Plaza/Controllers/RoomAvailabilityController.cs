@@ -40,19 +40,19 @@ namespace PlazaAPI.Controllers
         // POST: api/hotels/check-availability
         // Check availability for a specific room
         // ------------------------------------------------------
-        [HttpPost("check-availability")]
-        public async Task<IActionResult> CheckAvailability(
-            [FromBody] BookingRequestDto request)
-        {
-            bool available =
-                await _availabilityService.CheckAvailabilityAsync(request);
+        //[HttpPost("check-availability")]
+        //public async Task<IActionResult> CheckAvailability(
+        //    [FromBody] BookingRequestDto request)
+        //{
+        //    bool available =
+        //        await _availabilityService.CheckAvailabilityAsync(request);
 
-            return Ok(new
-            {
-                success = true,
-                data = new { isAvailable = available }
-            });
-        }
+        //    return Ok(new
+        //    {
+        //        success = true,
+        //        data = new { isAvailable = available }
+        //    });
+        //}
 
         // ------------------------------------------------------
         // POST: api/hotels/calculate-price
