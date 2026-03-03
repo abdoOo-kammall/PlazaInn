@@ -15,6 +15,7 @@ namespace PlazaCore.ServiceContract
         Task<BookingResponseDto> CreateBookingAsync(BookingRequestDto request);
         Task ConfirmBookingPaymentAsync(string paymentReference);
         Task<BookingResponseDto?> GetBookingByIdAsync(int bookingId);
+        Task AttachPaymentReferenceAsync(int bookingId, string paymentReference);
 
     }
 

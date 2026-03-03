@@ -10,7 +10,10 @@ namespace Plaza.Mapping.ContactUsMap
     {
         public ContactUsMappingL()
         {
-            CreateMap<ContactUs, ContactUsDto>();
+            CreateMap<ContactUs, ContactUsDto>()
+            .ForMember(dest => dest.WorkingHours,
+              opt => opt.MapFrom(src => src.WorkingHours));
+
             CreateMap<WorkingHour, WorkingHourDto>();
 
             CreateMap<CreateContactUsDto, ContactUs>();

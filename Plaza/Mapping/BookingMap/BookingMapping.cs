@@ -5,27 +5,19 @@ using Shared.Security;
 
 namespace Plaza.Mapping.BookingMap
 {
-    public class BookingMapping:Profile
+    public class BookingMapping : Profile
     {
         public BookingMapping()
         {
             CreateMap<BookingRequestDto, Booking>()
-           .ForMember(dest => dest.HotelId,
-                      opt => opt.MapFrom(src => IdEncoder.DecodeId(src.EncodedHotelId)))
-           .ForMember(dest => dest.RoomId,
-                      opt => opt.MapFrom(src => IdEncoder.DecodeId(src.EncodedRoomId)))
-           .ForMember(dest => dest.RoomsBooked,
-                      opt => opt.MapFrom(src => src.RoomsCount > 0 ? src.RoomsCount : 1));
-           // do not map TotalPrice / Status / IsPaid (we set them in service)
-           //.ForAllOtherMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                .ForMember(dest => dest.HotelId, opt => opt.MapFrom(src => IdEncoder.DecodeId(src.EncodedHotelId)))
+                .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => IdEncoder.DecodeId(src.EncodedRoomId)));
 
-            // Booking -> BookingResponseDto (encode ids)
             CreateMap<Booking, BookingResponseDto>()
                 .ForMember(dest => dest.EncodedId, opt => opt.MapFrom(src => IdEncoder.EncodeId(src.Id)))
                 .ForMember(dest => dest.EncodedHotelId, opt => opt.MapFrom(src => IdEncoder.EncodeId(src.HotelId)))
                 .ForMember(dest => dest.EncodedRoomId, opt => opt.MapFrom(src => IdEncoder.EncodeId(src.RoomId)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
-       
     }
 }

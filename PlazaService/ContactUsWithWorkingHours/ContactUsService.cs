@@ -23,45 +23,72 @@ namespace PlazaService.ContactUsWithWorkingHours
             this._repo = repository;
             this._mapper = mapper;
         }
-        public async Task CreateContactUs(CreateContactUsDto contactUsDto)
-        {
-            var contactUs = _mapper.Map<ContactUs>(contactUsDto);
-            await _repo.AddAsync(contactUs);
-            await _repo.SaveChangesAsync();
+      
+    
 
-        }
-
-        //public async Task DeleteContactUs(int id)
-        //{
-        //    var contactUs = await _repo.GetByIdAsync(id);
-        //    if (contactUs != null) {
-        //        _repo.Delete(contactUs);
-        //        await _repo.SaveChangesAsync();
-        //    }
-        //}
-
-        public async Task<IEnumerable<ContactUsDto>> GetAllContactUs()
+        public async Task<ContactUsDto> GetAllContactUs()
         {
             var spec = new ContactUsSpecification();
             var ContactSUs = await _repo.GetAllWithSpecAsync(spec);
-            return _mapper.Map< IEnumerable<ContactUsDto>>(ContactSUs);
+            var contactUs = ContactSUs.FirstOrDefault();
+            return _mapper.Map<ContactUsDto>(contactUs);
+
+
+           
         }
 
-        //public async Task<ContactUsDto> GetContactUs(int id)
-        //{
-        //    var ContactUs = await _repo.GetByIdAsync(id);
-        //    return _mapper.Map<ContactUsDto>(ContactUs);
-        //}
+    
 
-        public async Task UpdateContactUs(int id, UpdateContactUsDto contactUsDto)
+        public async Task UpdateContactUs(UpdateContactUsDto dto)
         {
-            var contactUs = await _repo.GetByIdAsync(id);
-            if (contactUs != null)
+            var list = await _repo.GetAllWithSpecAsync(new ContactUsSpecification());
+            var entity = list.FirstOrDefault();
+
+            if (entity == null)
             {
-                _mapper.Map<ContactUsDto>(contactUs);
-                _repo.Update(contactUs);
+                entity = _mapper.Map<ContactUs>(dto);
+                await _repo.AddAsync(entity);
                 await _repo.SaveChangesAsync();
+                return;
             }
+
+            // Update simple fields
+            entity.Email = dto.Email;
+            entity.Address = dto.Address;
+            entity.Phone = dto.Phone;
+            entity.Instagram = dto.Instagram;
+            entity.Facebook = dto.Facebook;
+            entity.WhatsApp = dto.WhatsApp;
+            entity.LinkedIn = dto.LinkedIn;
+
+            // ✅ Update WorkingHours smartly
+            foreach (var whDto in dto.WorkingHours)
+            {
+                var existing = entity.WorkingHours
+                    .FirstOrDefault(x => x.Day == whDto.Day);
+
+                if (existing != null)
+                {
+                    // UPDATE
+                    existing.OpenTime = whDto.OpenTime;
+                    existing.CloseTime = whDto.CloseTime;
+                }
+                else
+                {
+                    // ADD
+                    entity.WorkingHours.Add(new WorkingHour
+                    {
+                        Day = whDto.Day,
+                        OpenTime = whDto.OpenTime,
+                        CloseTime = whDto.CloseTime
+                    });
+                }
+            }
+
+            await _repo.SaveChangesAsync();
         }
+
+
+
     }
 }

@@ -8,7 +8,13 @@ namespace Shared.DTO.Payment
 {
     public class PaymentLinkResponse
     {
-        public string shorten_url { get; set; }
         public string client_url { get; set; }
+        public long order { get; set; }
     }
+
+    public class PaymobOrder
+    {
+        public long id { get; set; } // 🔥 ده أهم حاجة
+    }
+
 }

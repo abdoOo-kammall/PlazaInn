@@ -16,42 +16,23 @@ namespace PlazaApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<ContactUsDto>>> GetAll()
         {
             var result = await _contactUsService.GetAllContactUs();
-            return Ok(result);
+
+            return Ok(result ?? new ContactUsDto());
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> Get(int id)
-        //{
-        //    var result = await _contactUsService.GetContactUs(id);
-        //    if (result == null)
-        //        return NotFound();
 
-        //    return Ok(result);
-        //}
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateContactUsDto dto)
+        [HttpPut]
+        public async Task<IActionResult> Update( [FromBody] UpdateContactUsDto dto)
         {
-            await _contactUsService.CreateContactUs(dto);
-            return Ok(new { message = "Created Successfully" });
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateContactUsDto dto)
-        {
-            await _contactUsService.UpdateContactUs(id, dto);
+            
+            await _contactUsService.UpdateContactUs( dto);
             return NoContent();
         }
 
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    await _contactUsService.DeleteContactUs(id);
-        //    return NoContent();
-
-        //}
+       
     }
 }

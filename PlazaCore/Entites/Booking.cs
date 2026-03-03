@@ -28,6 +28,7 @@ namespace PlazaCore.Entites
         public int Children { get; set; }
         public decimal TotalPrice { get; set; }
         public bool IsPaid { get; set; } = false;
+        public string? MerchantOrderId { get; set; }
         public string? PaymentReference { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
     }

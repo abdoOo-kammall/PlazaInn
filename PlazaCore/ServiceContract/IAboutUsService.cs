@@ -10,10 +10,9 @@ namespace PlazaCore.ServiceContract
     public interface IAboutUsService
     {
         Task<IEnumerable<AboutUsDto>> getAllAboutUsImages();
-        //Task<AboutUsDto> getAboutUsImagesById(int id);
-        Task addAboutUsImages(CreateAboutUsDto aboutUs);
-        Task updateAboutUsImages(int id , UpdateAboutUsDto aboutUs);
-        //Task deleteAboutUsImages(int id);
+       
+        Task updateAboutUsImages(UpdateAboutUsDto aboutUs);
+      
 
 
 

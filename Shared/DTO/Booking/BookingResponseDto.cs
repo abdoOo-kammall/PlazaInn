@@ -11,9 +11,9 @@ namespace Shared.DTO.Booking
         public string EncodedId { get; set; } = null!; // بدل Id حابب تشفره
         public string EncodedHotelId { get; set; } = null!;
         public string EncodedRoomId { get; set; } = null!;
-        public int Adults { get; set; }
-        public int Children { get; set; }
-        public int RoomsBooked { get; set; }
+        //public int Adults { get; set; }
+        //public int Children { get; set; }
+        //public int RoomsBooked { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime CheckIn { get; set; }
         public DateTime CheckOut { get; set; }

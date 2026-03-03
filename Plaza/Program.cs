@@ -9,6 +9,7 @@ using PlazaCore.Entites;
 using PlazaRepository;
 using PlazaRepository.Data.DataSeed;
 using Microsoft.Extensions.FileProviders;
+using Plaza.MiddelWare;
 
 namespace Plaza
 {
@@ -79,6 +80,8 @@ namespace Plaza
             #endregion
 
             var app = builder.Build();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 
             await SeedDataAsync(app);
 
@@ -125,27 +128,27 @@ namespace Plaza
 
 
             app.MapControllers();
-            app.Use(async (context, next) =>
-            {
-                try
-                {
-                    await next();
-                }
-                catch (Exception ex)
-                {
-                    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "Unhandled exception!");
+            //app.Use(async (context, next) =>
+            //{
+            //    try
+            //    {
+            //        await next();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            //        logger.LogError(ex, "Unhandled exception!");
 
-                    context.Response.StatusCode = 500;
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsJsonAsync(new
-                    {
-                        message = ex.Message,
-                        inner = ex.InnerException?.Message,
-                        stack = ex.StackTrace
-                    });
-                }
-            });
+            //        context.Response.StatusCode = 500;
+            //        context.Response.ContentType = "application/json";
+            //        await context.Response.WriteAsJsonAsync(new
+            //        {
+            //            message = ex.Message,
+            //            inner = ex.InnerException?.Message,
+            //            stack = ex.StackTrace
+            //        });
+            //    }
+            //});
 
 
             app.Run();

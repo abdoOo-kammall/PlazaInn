@@ -8,6 +8,7 @@ namespace Shared.DTO.Payment
 {
     public class PaymentRequestDto
     {
+        public string EncodedBookingId { get; set; } = null!;
         public int AmountCents { get; set; }
         public string Currency { get; set; }
         public BillingData BillingData { get; set; }

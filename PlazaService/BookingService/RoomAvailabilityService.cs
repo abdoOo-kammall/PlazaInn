@@ -1,4 +1,6 @@
-﻿using PlazaCore.Entites;
+﻿using AutoMapper;
+using Plaza.Exceptions;
+using PlazaCore.Entites;
 using PlazaCore.RepositoryContract;
 using PlazaCore.ServiceContract;
 using PlazaCore.Specification.BookingSpecification;
@@ -8,8 +10,8 @@ using Shared.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PlazaService.BookingService
 {
@@ -18,174 +20,85 @@ namespace PlazaService.BookingService
         private readonly IGenericRepository<Booking> _bookingRepo;
         private readonly IGenericRepository<Room> _roomRepo;
         private readonly IGenericRepository<Hotel> _hotelRepo;
+        private readonly IMapper _mapper;
 
         public RoomAvailabilityService(
             IGenericRepository<Booking> bookingRepo,
             IGenericRepository<Room> roomRepo,
-            IGenericRepository<Hotel> hotelRepo)
+            IGenericRepository<Hotel> hotelRepo , IMapper mapper) 
+           
         {
             _bookingRepo = bookingRepo;
             _roomRepo = roomRepo;
             _hotelRepo = hotelRepo;
+            _mapper = mapper;
         }
 
-        // ------------------------------------------------------
-        // List rooms + availability
-        // ------------------------------------------------------
-        public async Task<IReadOnlyList<RoomAvailabilityDto>>
-            GetHotelRoomsAvailabilityAsync(
-                string encodedHotelId,
-                RoomAvailabilityRequestDto request)
+        public async Task<IReadOnlyList<RoomAvailabilityDto>> GetHotelRoomsAvailabilityAsync(string encodedHotelId, RoomAvailabilityRequestDto request)
         {
+            if (!IsDateRangeValid(request))
+                throw new ArgumentException("Invalid date range");
+
             int hotelId = IdEncoder.DecodeId(encodedHotelId);
 
             var hotel = await _hotelRepo.GetByIdAsync(hotelId)
-                ?? throw new Exception("Hotel not found");
+                ?? throw new NotFoundException("Hotel not found");
+
+           
             var spec = new RoomByHotelIdSpec(hotelId);
             var rooms = await _roomRepo.GetAllWithSpecAsync(spec);
 
-            var bookingsSpec =
-                new BookingInDateRangeSpec(hotelId, request.CheckIn, request.CheckOut);
-
+           
+            var bookingsSpec = new BookingInDateRangeSpec(hotelId, request.CheckIn, request.CheckOut);
             var bookings = await _bookingRepo.GetAllWithSpecAsync(bookingsSpec);
 
-            int bookedRooms = bookings.Sum(b => b.RoomsBooked);
-            int roomsLeftInHotel =
-                hotel.NumOfAvailableRoomsToReserve - bookedRooms;
+            //int nights = (request.CheckOut - request.CheckIn).Days;
 
-            var result = new List<RoomAvailabilityDto>();
-
-            foreach (var room in rooms)
+   
+            var result = rooms.Select(room =>
             {
-                int people =
-                    request.Adults +
-                    request.Children +
-                    (request.ExtraBed ? request.ExtraBedCount : 0);
+                bool isBooked = bookings.Any(b => b.RoomId == room.Id);
 
-                int capacity =
-                    (room.MaxSleep * request.RoomsCount) +
-                    (room.ExtraBed && request.ExtraBed
-                        ? request.ExtraBedCount
-                        : 0);
-
-                bool isAvailable =
-                    roomsLeftInHotel >= request.RoomsCount &&
-                    capacity >= people;
-
-                decimal estimatedPrice =
-                    CalculateRoomEstimatedPrice(room, request);
-
-                result.Add(new RoomAvailabilityDto
+                return _mapper.Map<RoomAvailabilityDto>(room, opts =>
                 {
-                    EncodedRoomId = IdEncoder.EncodeId(room.Id),
-                    Name = room.Name,
-                    NameAr = room.NameAr,
-                    PricePerNight = room.PricePerNight,
-                    ExtraBedAvailable = room.ExtraBed,
-                    PriceForExtraBed = room.PriceForExtraBed,
-                    MaxSleep = room.MaxSleep,
-                    IsAvailable = isAvailable,
-                    RoomsLeftForHotelLimit = roomsLeftInHotel,
-                    EstimatedTotalPriceForRequest = estimatedPrice
+                    //opts.Items["nights"] = nights;
+                    opts.Items["isBooked"] = isBooked;
                 });
-            }
+
+            }).ToList();
 
             return result;
         }
 
-        // ------------------------------------------------------
-        // Check availability for booking
-        // ------------------------------------------------------
         public async Task<bool> CheckAvailabilityAsync(BookingRequestDto request)
         {
-            int hotelId = IdEncoder.DecodeId(request.EncodedHotelId);
+
             int roomId = IdEncoder.DecodeId(request.EncodedRoomId);
 
-            var hotel = await _hotelRepo.GetByIdAsync(hotelId)
-                ?? throw new Exception("Hotel not found");
+            var room = await _roomRepo.GetByIdAsync(roomId) ?? throw new Exception("Room not found");
 
-            var room = await _roomRepo.GetByIdAsync(roomId)
-                ?? throw new Exception("Room not found");
-
-            var bookingsSpec =
-                new BookingInDateRangeSpec(hotelId, request.CheckIn, request.CheckOut);
-
+            var bookingsSpec = new BookingInDateRangeSpec(room.HotelId, request.CheckIn, request.CheckOut);
             var bookings = await _bookingRepo.GetAllWithSpecAsync(bookingsSpec);
 
-            int bookedRooms = bookings.Sum(b => b.RoomsBooked);
-
-            if (bookedRooms + request.RoomsCount >
-                hotel.NumOfAvailableRoomsToReserve)
-                return false;
-
-            int people =
-                request.Adults +
-                request.Children +
-                (request.ExtraBed ? request.ExtraBedCount : 0);
-
-            int capacity =
-                (room.MaxSleep * request.RoomsCount) +
-                (room.ExtraBed && request.ExtraBed
-                    ? request.ExtraBedCount
-                    : 0);
-
-            return capacity >= people;
+            bool isBooked = bookings.Any(b => b.RoomId == room.Id);
+            return !isBooked;
         }
 
-        // ------------------------------------------------------
-        // Calculate total price
-        // ------------------------------------------------------
-        public async Task<decimal> CalculateTotalPriceAsync(
-            BookingRequestDto request)
+        public async Task<decimal> CalculateTotalPriceAsync(BookingRequestDto request)
         {
             int roomId = IdEncoder.DecodeId(request.EncodedRoomId);
 
-            var room = await _roomRepo.GetByIdAsync(roomId)
-                ?? throw new Exception("Room not found");
+            var room = await _roomRepo.GetByIdAsync(roomId) ?? throw new NotFoundException("Room not found");
 
             int nights = (request.CheckOut - request.CheckIn).Days;
-            if (nights <= 0) throw new Exception("Invalid dates");
+            if (nights <= 0) throw new ArgumentException("Invalid dates");
 
-            decimal basePrice =
-                room.PricePerNight *
-                nights *
-                request.RoomsCount;
-
-            decimal extraBedPrice = 0;
-            if (request.ExtraBed && room.ExtraBed)
-            {
-                extraBedPrice =
-                    room.PriceForExtraBed *
-                    request.ExtraBedCount *
-                    nights;
-            }
-
-            return basePrice + extraBedPrice;
+            return room.PricePerNight * nights * 128 / 100;
         }
 
-        private decimal CalculateRoomEstimatedPrice(
-            Room room,
-            RoomAvailabilityRequestDto request)
+        public bool IsDateRangeValid(RoomAvailabilityRequestDto request)
         {
-            int nights = (request.CheckOut - request.CheckIn).Days;
-            if (nights <= 0) return 0;
-
-            decimal basePrice =
-                room.PricePerNight *
-                nights *
-                request.RoomsCount;
-
-            decimal extraBedPrice = 0;
-            if (request.ExtraBed && room.ExtraBed)
-            {
-                extraBedPrice =
-                    room.PriceForExtraBed *
-                    request.ExtraBedCount *
-                    nights;
-            }
-
-            return basePrice + extraBedPrice;
+            return request.CheckOut > request.CheckIn;
         }
     }
-
 }

@@ -309,6 +309,9 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
+                    b.Property<string>("MerchantOrderId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PaymentReference")
                         .HasColumnType("nvarchar(max)");
 
@@ -800,7 +803,7 @@ namespace PlazaRepository.Data.Migrations
             modelBuilder.Entity("PlazaCore.Entites.WorkingHour", b =>
                 {
                     b.HasOne("PlazaCore.Entites.ContactUs", "ContactUs")
-                        .WithMany("workingHours")
+                        .WithMany("WorkingHours")
                         .HasForeignKey("ContactUsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -810,7 +813,7 @@ namespace PlazaRepository.Data.Migrations
 
             modelBuilder.Entity("PlazaCore.Entites.ContactUs", b =>
                 {
-                    b.Navigation("workingHours");
+                    b.Navigation("WorkingHours");
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>

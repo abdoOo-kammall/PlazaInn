@@ -15,5 +15,7 @@ namespace PlazaCore.ServiceContract
         Task<bool> CheckAvailabilityAsync(BookingRequestDto request);
 
         Task<decimal> CalculateTotalPriceAsync(BookingRequestDto request);
+        bool IsDateRangeValid(RoomAvailabilityRequestDto request);
+
     }
 }

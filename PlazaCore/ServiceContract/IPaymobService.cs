@@ -10,7 +10,10 @@ namespace PlazaCore.ServiceContract
    public interface  IPaymobService
     {
         Task<string> GetTokenAsync(bool isLive);
-        Task<string> CreatePaymentLinkAsync(PaymentRequestDto request, bool isLive);
+        //Task<string> CreatePaymentLinkAsync(PaymentRequestDto request, bool isLive);
+        Task<(string paymentUrl, long paymobOrderId)> CreatePaymentLinkAsync(PaymentRequestDto request, bool isLive);
+        Task<PaymobOrderStatusDto> GetOrderStatusAsync(long orderId);
+
 
     }
 }

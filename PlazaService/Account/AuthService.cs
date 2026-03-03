@@ -79,12 +79,14 @@ namespace PlazaService.Account
             await _userManager.AddToRoleAsync(user ,"Client");
         }
 
-        public async Task ResetPasswordAsync(string email, string token, string newPassword)
+        public async Task ResetPasswordAsync(string email, string token, string newPassword )
         {
            var user  = await _userManager.FindByEmailAsync(email);
-            if (user == null) throw new ArgumentException("invalid email");
+            if (user == null) throw new ArgumentException("The password and confirmation password do not match.");
 
-          var result =   await _userManager.ResetPasswordAsync(user,token,newPassword);
+
+
+            var result =   await _userManager.ResetPasswordAsync(user,token,newPassword);
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));

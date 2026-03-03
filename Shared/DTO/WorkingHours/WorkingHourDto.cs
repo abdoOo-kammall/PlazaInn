@@ -10,7 +10,7 @@ namespace Shared.DTO.WorkingHours
     {
         public int Id { get; set; }
         public DayOfWeek Day { get; set; }
-        public DateTime OpenTime { get; set; }
-        public DateTime CloseTime { get; set; }
+        public TimeOnly OpenTime { get; set; }
+        public TimeOnly CloseTime { get; set; }
     }
 }

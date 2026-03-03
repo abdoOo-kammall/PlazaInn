@@ -9,10 +9,10 @@ namespace PlazaCore.ServiceContract
 {
     public interface IContactUsService
     {
-        Task<IEnumerable<ContactUsDto>> GetAllContactUs();
-        //Task<ContactUsDto> GetContactUs(int id);
-        Task UpdateContactUs(int id, UpdateContactUsDto contactUsDto);
-        Task CreateContactUs(CreateContactUsDto contactUsDto);
+        Task<ContactUsDto> GetAllContactUs();
+        //Task<ContactUso> GetContactUs(int id);
+        Task UpdateContactUs( UpdateContactUsDto contactUsDto);
+        //Task CreateContactUs(CreateContactUsDto contactUsDto);
         //Task DeleteContactUs(int id);
 
 

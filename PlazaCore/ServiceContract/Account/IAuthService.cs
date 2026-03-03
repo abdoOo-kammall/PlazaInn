@@ -14,6 +14,6 @@ namespace PlazaCore.ServiceContract.Account
         public Task RegisterAsync(RegisterDTO registerDTO);
         public Task<LoginResultDTO> LoginAsync(LoginDTO loginDTO);
         public Task ForgotPasswordAsync(string email);
-        public Task ResetPasswordAsync(string email, string token, string newPassword);
+        public Task ResetPasswordAsync(string email, string token, string newPassword );
     }
 }

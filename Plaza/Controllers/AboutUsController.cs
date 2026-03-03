@@ -21,33 +21,21 @@ namespace Plaza.Controllers
             var aboutUsImages = await _aboutUsService.getAllAboutUsImages();
             return Ok(aboutUsImages);
         }
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult> GetAboutUsImage(int id)
+      
+        //[HttpPost]
+        //public async Task<ActionResult> addAboutUsImages(CreateAboutUsDto aboutUsDto)
         //{
-        //    var aboutUsImage = await _aboutUsService.getAboutUsImagesById(id);
-        //    if (aboutUsImage == null) return Ok();
-        //    return Ok(aboutUsImage);
+
+        //    await _aboutUsService.addAboutUsImages(aboutUsDto);
+        //    return Ok("Added Succuesfully");
         //}
-        [HttpPost]
-        public async Task<ActionResult> addAboutUsImages(CreateAboutUsDto aboutUsDto)
+        [HttpPut]
+        public async Task<ActionResult> updateAboutUsImages( UpdateAboutUsDto aboutUsDto)
         {
 
-            await _aboutUsService.addAboutUsImages(aboutUsDto);
-            return Ok("Added Succuesfully");
-        }
-        [HttpPut("{id}")]
-        public async Task<ActionResult> updateAboutUsImages(int id, UpdateAboutUsDto aboutUsDto)
-        {
-
-            await _aboutUsService.updateAboutUsImages(id, aboutUsDto);
+            await _aboutUsService.updateAboutUsImages(aboutUsDto);
             return NoContent();
         }
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult> DeleteAboutUsImages(int id)
-        //{
-
-        //    await _aboutUsService.deleteAboutUsImages(id);
-        //    return NoContent();
-        //}
+      
     }
 }
