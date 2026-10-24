@@ -297,11 +297,19 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<string>("CustomerEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("CustomerName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<bool>("ExtraBed")
+                        .HasColumnType("bit");
 
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
@@ -310,10 +318,12 @@ namespace PlazaRepository.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("MerchantOrderId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PaymentReference")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
@@ -325,16 +335,28 @@ namespace PlazaRepository.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("HotelId");
+                    b.HasIndex("CustomerEmail");
+
+                    b.HasIndex("PaymentReference");
 
                     b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Status", "CreatedAt");
+
+                    b.HasIndex("HotelId", "CheckIn", "CheckOut");
 
                     b.ToTable("Bookings");
                 });
@@ -519,7 +541,8 @@ namespace PlazaRepository.Data.Migrations
 
                     b.Property<string>("Hash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -531,6 +554,8 @@ namespace PlazaRepository.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Hash", "Type");
 
                     b.ToTable("Images");
                 });
@@ -648,9 +673,11 @@ namespace PlazaRepository.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PriceForExtraBed")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("PricePerNight")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Type")
@@ -690,7 +717,7 @@ namespace PlazaRepository.Data.Migrations
 
                     b.HasIndex("ContactUsId");
 
-                    b.ToTable("workingHours");
+                    b.ToTable("workingHours", (string)null);
                 });
 
             modelBuilder.Entity("HotelPartners", b =>
@@ -772,6 +799,11 @@ namespace PlazaRepository.Data.Migrations
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("PlazaCore.Entites.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Hotel");
 

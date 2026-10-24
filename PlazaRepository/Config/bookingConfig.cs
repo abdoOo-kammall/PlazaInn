@@ -26,6 +26,22 @@ namespace PlazaRepository.Config
                 .HasForeignKey(b => b.HotelId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder
+                .HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Property(b => b.CustomerPhone).HasMaxLength(32);
+            builder.Property(b => b.MerchantOrderId).HasMaxLength(100);
+            builder.Property(b => b.CustomerEmail).HasMaxLength(256);
+            builder.Property(b => b.PaymentReference).HasMaxLength(64);
+            builder.Property(b => b.TotalPrice).HasPrecision(18, 2);
+
+            builder.HasIndex(b => b.PaymentReference);
+            builder.HasIndex(b => b.CustomerEmail);
+            builder.HasIndex(b => new { b.HotelId, b.CheckIn, b.CheckOut });
+            builder.HasIndex(b => new { b.Status, b.CreatedAt });
         }
     }
 }

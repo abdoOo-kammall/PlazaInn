@@ -25,6 +25,9 @@ namespace PlazaRepository.Config
 
             
             builder.Property(r => r.Features).IsRequired(false);
+
+            builder.Property(r => r.PricePerNight).HasPrecision(18, 2);
+            builder.Property(r => r.PriceForExtraBed).HasPrecision(18, 2);
         }
     }
 }

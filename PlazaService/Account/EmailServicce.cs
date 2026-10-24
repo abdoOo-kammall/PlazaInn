@@ -14,9 +14,9 @@ public class EmailService : IEmailService
 
     public async Task SendEmailAsync(string to, string subject, string htmlBody , List<(MemoryStream Stream, string FileName)>? attachments = null)
     {
-        var smtpClient = new SmtpClient(_configuration["Email:SmtpServer"])
+        using var smtpClient = new SmtpClient(_configuration["Email:SmtpServer"])
         {
-            Port = int.Parse(_configuration["Email:Port"]),
+            Port = int.Parse(_configuration["Email:Port"] ?? "587"),
             Credentials = new NetworkCredential(
                 _configuration["Email:Username"],
                 _configuration["Email:Password"]
@@ -26,10 +26,10 @@ public class EmailService : IEmailService
         };
         htmlBody += _configuration["Email:Signature"];
 
-
-        var mailMessage = new MailMessage
+        // Disposing the message also disposes every attachment stream added to it.
+        using var mailMessage = new MailMessage
         {
-            From = new MailAddress(_configuration["Email:From"]),
+            From = new MailAddress(_configuration["Email:From"]!),
             Subject = subject,
             Body = htmlBody,
             IsBodyHtml = true,
@@ -40,16 +40,10 @@ public class EmailService : IEmailService
             foreach (var att in attachments)
             {
                 att.Stream.Position = 0;
-                var attachment = new Attachment(att.Stream, att.FileName);
-                mailMessage.Attachments.Add(attachment);
+                mailMessage.Attachments.Add(new Attachment(att.Stream, att.FileName));
             }
         }
 
-
         await smtpClient.SendMailAsync(mailMessage);
-        foreach (var attachment in mailMessage.Attachments)
-        {
-            attachment.ContentStream.Dispose();
-        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +13,11 @@ namespace Shared.Helper
 {
     public static class Methods
     {
+           // Key: "{storageFolder}/{entityType}/{id}", value: path relative to the web root, or null when no file exists.
+           private static readonly ConcurrentDictionary<string, string?> FilePathCache = new(StringComparer.OrdinalIgnoreCase);
+
+           private static string _webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
            public static MemoryStream CloneStream(MemoryStream original)
            {
                 var newStream = new MemoryStream(original.ToArray());
@@ -18,44 +25,106 @@ namespace Shared.Helper
                 return newStream;
            }
 
-           public static List<FileDto> ConvertIdsToFileDTO(string fileIdsJson, string entityType = "general")
+           /// <summary>Points file lookups at the folder served as static files. Call once at startup.</summary>
+           public static void ConfigureFileStorage(string webRootPath)
+           {
+                if (string.IsNullOrWhiteSpace(webRootPath))
+                    throw new ArgumentException("Web root path must be provided.", nameof(webRootPath));
+
+                _webRootPath = webRootPath;
+                FilePathCache.Clear();
+           }
+
+           public static string GetStorageFolder(string entityType) =>
+                entityType.Contains("menu", StringComparison.OrdinalIgnoreCase) ? "menus" : "images";
+
+           /// <summary>Records where an uploaded file was stored so mapping never has to scan the disk for it.</summary>
+           public static void CacheFilePath(string entityType, int id, string? relativePath) =>
+                FilePathCache[BuildCacheKey(GetStorageFolder(entityType), entityType, id)] = relativePath;
+
+           /// <summary>Marks a deleted file (given by its stored relative URL, e.g. "images/hotel/5.jpg") as missing.</summary>
+           public static void InvalidateFilePath(string? relativePath)
+           {
+                if (string.IsNullOrWhiteSpace(relativePath))
+                    return;
+
+                var normalized = relativePath.Replace('\\', '/').Trim('/');
+                var separator = normalized.LastIndexOf('/');
+                if (separator <= 0 || !int.TryParse(Path.GetFileNameWithoutExtension(normalized), out var id))
+                    return;
+
+                FilePathCache[$"{normalized[..separator]}/{id}"] = null;
+           }
+
+           public static List<FileDto> ConvertIdsToFileDTO(string? fileIdsJson, string entityType = "general")
            {
                 if (string.IsNullOrEmpty(fileIdsJson))
                     return new List<FileDto>();
 
-                    try
+                List<int>? ids;
+                try
+                {
+                    ids = JsonSerializer.Deserialize<List<int>>(fileIdsJson);
+                }
+                catch (JsonException)
+                {
+                    return new List<FileDto>();
+                }
+
+                if (ids == null || ids.Count == 0)
+                    return new List<FileDto>();
+
+                var baseFolder = GetStorageFolder(entityType);
+                var list = new List<FileDto>(ids.Count);
+
+                foreach (var id in ids)
+                {
+                    var relativePath = ResolveRelativePath(baseFolder, entityType, id);
+                    if (relativePath != null)
                     {
-                        var ids = JsonSerializer.Deserialize<List<int>>(fileIdsJson);
-                        if (ids == null || !ids.Any())
-                            return new List<FileDto>();
-
-                        var list = new List<FileDto>();
-                        var baseFolder = entityType.ToLower().Contains("menu") ? "menus" : "images";
-                        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", baseFolder, entityType);
-
-
-                        foreach (var id in ids)
+                        list.Add(new FileDto
                         {
-                            var matchedFile = Directory.GetFiles(folderPath, $"{id}.*").FirstOrDefault();
-                            if (matchedFile != null)
-                            {
-                                var relativePath = matchedFile.Replace(Directory.GetCurrentDirectory(), "")
-                                                              .Replace("\\", "/")
-                                                              .TrimStart('/');
-                                list.Add(new FileDto
-                                {
-                                    Id = id,
-                                    Url = ImagePathCreation.BuildFullImageUrl(relativePath)
-                                });
-                            }
-                        }
+                            Id = id,
+                            Url = ImagePathCreation.BuildFullImageUrl(relativePath)
+                        });
+                    }
+                }
 
-                        return list;
-                    }
-                    catch
-                    {
-                        return new List<FileDto>();
-                    }
+                return list;
+           }
+
+           private static string BuildCacheKey(string baseFolder, string entityType, int id) => $"{baseFolder}/{entityType}/{id}";
+
+           private static string? ResolveRelativePath(string baseFolder, string entityType, int id)
+           {
+                var key = BuildCacheKey(baseFolder, entityType, id);
+                if (FilePathCache.TryGetValue(key, out var cached))
+                    return cached;
+
+                string? relativePath;
+                try
+                {
+                    relativePath = FindFileOnDisk(baseFolder, entityType, id);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    // Not cached, so a transient I/O failure is retried on the next lookup.
+                    return null;
+                }
+
+                return FilePathCache.GetOrAdd(key, relativePath);
+           }
+
+           private static string? FindFileOnDisk(string baseFolder, string entityType, int id)
+           {
+                var folderPath = Path.Combine(_webRootPath, baseFolder, entityType);
+                if (!Directory.Exists(folderPath))
+                    return null;
+
+                var matchedFile = Directory.EnumerateFiles(folderPath, $"{id}.*").FirstOrDefault();
+                return matchedFile == null
+                    ? null
+                    : Path.GetRelativePath(_webRootPath, matchedFile).Replace('\\', '/');
            }
     }
 }

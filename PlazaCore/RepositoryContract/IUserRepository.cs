@@ -11,6 +11,7 @@ namespace PlazaCore.RepositoryContract
     {
         Task<IEnumerable<ApplicationUser>> GetAllAsync();
         Task<ApplicationUser?> GetByIdAsync(string id);
+        Task<IReadOnlyDictionary<string, string>> GetUserRoleNamesAsync();
         Task AddAsync(ApplicationUser user);
         void Update(ApplicationUser user);
         void Delete(ApplicationUser user);

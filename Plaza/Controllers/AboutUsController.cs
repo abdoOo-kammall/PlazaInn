@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.ServiceContract;
 using Shared.DTO.AboutUs;
@@ -30,6 +31,7 @@ namespace Plaza.Controllers
         //    return Ok("Added Succuesfully");
         //}
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> updateAboutUsImages( UpdateAboutUsDto aboutUsDto)
         {
 

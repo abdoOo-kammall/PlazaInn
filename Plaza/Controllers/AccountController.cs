@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Plaza.DTO.Account;
+using Plaza.Extensions;
 using PlazaCore.ServiceContract.Account;
 using Shared.DTO.Account;
 
@@ -11,41 +12,39 @@ namespace Plaza.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private const string ForgotPasswordMessage = "If an account with that email exists, a password reset link has been sent.";
 
-        public AccountController(IAuthService authService)
+        private readonly IAuthService _authService;
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(IAuthService authService, ILogger<AccountController> logger)
         {
             this._authService = authService;
+            this._logger = logger;
         }
-        [HttpPost("login")]
-        
-        public async Task< IActionResult> login(LoginDTO loginDTO) {
 
+        [HttpPost("login")]
+        [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
+        public async Task<IActionResult> login(LoginDTO loginDTO)
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                var result = await _authService.LoginAsync(loginDTO);
-                if (result == null)
-                    return Unauthorized(new { message = "Invalid email or password." });
+            var result = await _authService.LoginAsync(loginDTO);
+            if (!result.Success)
+                return Unauthorized(new { message = result.Message });
 
-                return Ok(new
-                {
-                    message = result.Message,
-                    token = result.Token
-                });
-            }
-            catch (Exception ex)
+            return Ok(new
             {
-                return BadRequest(new { message = ex.Message });
-            }
-        
+                message = result.Message,
+                token = result.Token
+            });
         }
 
         [HttpPost("register")]
+        [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
         {
             if (!ModelState.IsValid)
@@ -58,29 +57,43 @@ namespace Plaza.Controllers
                 await _authService.RegisterAsync(registerDTO);
                 return Ok(new { message = "Registration successful." });
             }
-            catch (Exception ex)
-            {
-               
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
-        {
-            try
-            {
-                await _authService.ForgotPasswordAsync(dto.Email);
-                return Ok(new { message = "Password reset link sent to your email." });
-            }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
 
+        [HttpPost("forgot-password")]
+        [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _authService.ForgotPasswordAsync(dto.Email);
+            }
+            catch (Exception ex)
+            {
+                // Same response either way so callers cannot probe which emails are registered.
+                _logger.LogError(ex, "Failed to process forgot-password request.");
+            }
+
+            return Ok(new { message = ForgotPasswordMessage });
+        }
+
         [HttpPost("reset-password")]
+        [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 dto.Token = Uri.UnescapeDataString(dto.Token);
@@ -88,7 +101,7 @@ namespace Plaza.Controllers
                 await _authService.ResetPasswordAsync(dto.Email, dto.Token, dto.NewPassword);
                 return Ok(new { message = "Password reset successful." });
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }

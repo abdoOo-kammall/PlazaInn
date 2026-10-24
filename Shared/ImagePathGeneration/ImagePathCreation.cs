@@ -4,7 +4,16 @@ namespace Shared.ImagePathGeneration
 {
     public static class ImagePathCreation
     {
-        private const string BaseUrl = "http://plazainn.runasp.net/";
+        private static string _baseUrl = string.Empty;
+
+        /// <summary>Must be called once at startup with the public backend URL (config key "BaseUrl").</summary>
+        public static void Configure(string baseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                throw new ArgumentException("BaseUrl must be a non-empty URL.", nameof(baseUrl));
+
+            _baseUrl = baseUrl.TrimEnd('/') + "/";
+        }
 
         public static string BuildFullImageUrl(string? relativePath)
         {
@@ -12,12 +21,12 @@ namespace Shared.ImagePathGeneration
                 return string.Empty;
 
            
-            var normalizedPath = relativePath.Replace("\\", "/");
+            var normalizedPath = relativePath.Replace("\\", "/").TrimStart('/');
 
             if (normalizedPath.StartsWith("wwwroot/", StringComparison.OrdinalIgnoreCase))
                 normalizedPath = normalizedPath.Substring("wwwroot/".Length);
 
-            return $"{BaseUrl}{normalizedPath}";
+            return $"{_baseUrl}{normalizedPath}";
         }
     }
 }

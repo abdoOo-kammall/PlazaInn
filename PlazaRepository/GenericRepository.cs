@@ -3,6 +3,7 @@
     using PlazaCore.RepositoryContract;
     using PlazaCore.Specification;
     using System.Collections.Generic;
+    using System.Data;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -68,6 +69,30 @@
             public async Task<int> SaveChangesAsync()
             {
                 return await _context.SaveChangesAsync();
+            }
+
+            // ---------- Transactions ----------
+
+            public async Task<TResult> ExecuteInTransactionAsync<TResult>(Func<Task<TResult>> operation, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+            {
+                var strategy = _context.Database.CreateExecutionStrategy();
+
+                return await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction = await _context.Database.BeginTransactionAsync(isolationLevel);
+                    try
+                    {
+                        var result = await operation();
+                        await transaction.CommitAsync();
+                        return result;
+                    }
+                    catch
+                    {
+                        // Drop entities tracked by the failed attempt so a retry starts from a clean context.
+                        _context.ChangeTracker.Clear();
+                        throw;
+                    }
+                });
             }
             // ---------- Private Helpers ----------
 

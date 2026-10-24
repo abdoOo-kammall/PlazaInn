@@ -11,6 +11,7 @@ namespace PlazaCore.ServiceContract
     {
         Task<IEnumerable<Hotel>> GetAllHotelsAsync();
         Task<Hotel?> GetHotelAsync(int id);
+        Task<IReadOnlyList<Hotel>> GetHotelsByIdsAsync(IReadOnlyCollection<int> ids);
 
         Task AddHotelAsync(Hotel hotel);
         Task UpdateHotelAsync(Hotel hotel);

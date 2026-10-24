@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.ServiceContract;
@@ -27,6 +28,7 @@ namespace Plaza.Controllers
             return Ok(homeSliders);
         }
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> addHomeSlider(CreateHomeSliderDto homeSliderDto)
         {
 
@@ -42,6 +44,7 @@ namespace Plaza.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> updateHomeSlider(int id, UpdateHomeSliderDto homeSliderDto)
         {
 
@@ -51,6 +54,7 @@ namespace Plaza.Controllers
 
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> deleteHomeSlider(int id)
         {
 

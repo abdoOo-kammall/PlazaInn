@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using PlazaCore.Entites;
 using PlazaCore.Specification;
@@ -23,6 +24,13 @@ namespace PlazaCore.RepositoryContract
         void Update(T entity);
         void Delete(T entity);
         Task<int> SaveChangesAsync();
+
+        // ---------- Transactions ----------
+        /// <summary>
+        /// Runs <paramref name="operation"/> inside a database transaction using the configured retry strategy.
+        /// The operation may be re-executed on transient failures (e.g. deadlocks), so it must re-read any state it depends on.
+        /// </summary>
+        Task<TResult> ExecuteInTransactionAsync<TResult>(Func<Task<TResult>> operation, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted);
 
     }
 }

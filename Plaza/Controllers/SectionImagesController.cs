@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlazaCore.ServiceContract;
 using Shared.DTO.HomeSlider_AboutUs;
@@ -27,6 +28,7 @@ namespace Plaza.Controllers
 
         // PUT ?type=AboutUs
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateImages([FromQuery] PlazaInnType type, UpdateSectionImagesDto dto)
         {
             await _service.UpdateSectionImagesAsync(type, dto.ImagesId);

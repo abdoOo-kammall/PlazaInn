@@ -26,12 +26,12 @@ namespace PlazaRepository
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Image> Images { get; set; }
-        public   DbSet<Partners> Partners { get; set; }
+        public DbSet<Partners> Partners { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<HomeSlider> HomeSlider { get; set; }
         public DbSet<AboutUs> AboutUs { get; set; }
         public DbSet<ContactUs> ContactUs { get; set; }
-        public DbSet<WorkingHour> workingHours { get; set; } 
+        public DbSet<WorkingHour> WorkingHours { get; set; }
   
     }
 }

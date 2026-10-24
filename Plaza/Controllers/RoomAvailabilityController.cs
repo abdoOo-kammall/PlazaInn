@@ -23,7 +23,7 @@ namespace PlazaAPI.Controllers
         }
 
         [HttpPost("calculate-price")]
-        public async Task<IActionResult> CalculatePrice([FromBody] BookingRequestDto request)
+        public async Task<IActionResult> CalculatePrice([FromBody] BookingQuoteRequestDto request)
         {
             decimal price = await _availabilityService.CalculateTotalPriceAsync(request);
             return Ok(new { success = true, data = new { totalPrice = price } });

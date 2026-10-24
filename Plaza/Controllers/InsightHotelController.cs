@@ -9,8 +9,7 @@ using Shared.Enums;
 
 namespace Plaza.Controllers
 {
-    //[Authorize(Roles = "Admin")]
-
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class InsightHotelController : ControllerBase
@@ -47,25 +46,12 @@ namespace Plaza.Controllers
 
             var hotel = await _hotelService.GetHotelAsync(hotelId);
             if (hotel == null)
-                return Ok();
+                return NotFound();
 
             var insight = _mapper.Map<InsightHotel>(dto);
 
             insight.HotelId = hotelId;
-            try
-            {
-                await _insightService.AddInsightHotelAsync(insight);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
-
-
+            await _insightService.AddInsightHotelAsync(insight);
 
             return CreatedAtAction(nameof(GetInsightHotel),
                                    new { encodedHotelId = dto.EncodedHotelId },
@@ -73,6 +59,7 @@ namespace Plaza.Controllers
         }
 
         [HttpGet("{encodedHotelId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<InsightHotelDto>> GetInsightHotel(string encodedHotelId)
         {
             int hotelId;
@@ -87,7 +74,7 @@ namespace Plaza.Controllers
 
             var insight = await _insightService.GetByHotelIdAsync(hotelId);
             if (insight == null)
-                return Ok();
+                return NotFound();
 
             var result = _mapper.Map<InsightHotelDto>(insight);
 
@@ -109,7 +96,7 @@ namespace Plaza.Controllers
 
             var existing = await _insightService.GetByHotelIdAsync(hotelId);
             if (existing == null)
-                return Ok();
+                return NotFound();
 
             
             _mapper.Map(dto, existing);
@@ -134,7 +121,7 @@ namespace Plaza.Controllers
 
             var insight = await _insightService.GetByHotelIdAsync(hotelId);
             if (insight == null)
-                return Ok();
+                return NotFound();
 
             await _insightService.DeleteInsightHotelAsync(hotelId);
 

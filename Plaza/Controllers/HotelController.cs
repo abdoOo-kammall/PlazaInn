@@ -11,8 +11,7 @@ using Shared.Security;
 
 namespace Plaza.Controllers
 {
-    //[Authorize(Roles = "Admin")]
-
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class HotelController : ControllerBase
@@ -26,6 +25,7 @@ namespace Plaza.Controllers
             this._mapper = mapper;
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task <ActionResult<IEnumerable<HotelDto>>> GetHotels() { 
             
             var hotels = await _hotelService.GetAllHotelsAsync();
@@ -33,6 +33,7 @@ namespace Plaza.Controllers
             return Ok(hotelsResult);
         }
         [HttpGet("{encodedId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<HotelDto>> GetHotel(string encodedId) {
 
             int id;
@@ -45,7 +46,7 @@ namespace Plaza.Controllers
                 return BadRequest("Invalid hotel ID");
             }
             var hotel = await _hotelService.GetHotelAsync(id);
-            if (hotel == null) return Ok();
+            if (hotel == null) return NotFound();
             var hotelResult = _mapper.Map<HotelDto>(hotel);
 
             return Ok(hotelResult);
@@ -88,7 +89,7 @@ namespace Plaza.Controllers
             }
             var existing = await _hotelService.GetHotelAsync(id);
                 if (existing == null)
-                    return Ok();
+                    return NotFound();
                 _mapper.Map(hotelDto, existing);
 
             await _hotelService.UpdateHotelAsync(existing);
@@ -107,11 +108,12 @@ namespace Plaza.Controllers
                 return BadRequest("Invalid hotel ID");
             }
             var hotel = await _hotelService.GetHotelAsync(id);
-            if (hotel == null) return Ok();
+            if (hotel == null) return NotFound();
             await _hotelService.DeleteHotelAsync(id);
             return NoContent();
         }
         [HttpGet("lookup")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<HotelLookupDto>>> GetLookup()
         {
             var hotels = await _hotelService.GetAllHotelsAsync();

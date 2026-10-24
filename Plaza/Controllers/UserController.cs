@@ -9,8 +9,7 @@ using Shared.Enums;
 
 namespace Plaza.Controllers
 {
-    //[Authorize(Roles = "Admin")]
-
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -27,10 +26,11 @@ namespace Plaza.Controllers
         public async Task<ActionResult<IEnumerable<UserDTO>>> getAllUsers()
         {
             var users = await _userService.getAllUsersAsync();
+            var rolesByUserId = await _userService.getUserRolesLookupAsync();
             var userDtos = new List<UserDTO>();
             foreach (var user in users) { 
                 var actualUser = _mapper.Map<UserDTO>(user);
-                var roleString = await _userService.getUserRoleAsync(user);
+                rolesByUserId.TryGetValue(user.Id, out var roleString);
                 if (Enum.TryParse<Role>(roleString, out var roleEnum))
                     actualUser.Role = roleEnum;
                 else
@@ -44,7 +44,7 @@ namespace Plaza.Controllers
 
             var user = await _userService.getUserByIdAsync(userId);
             if (user == null)
-                return Ok();
+                return NotFound();
 
             var dto = _mapper.Map<UserDTO>(user);
             var roleString = await _userService.getUserRoleAsync(user);
@@ -74,33 +74,20 @@ namespace Plaza.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> updateUser(string id, [FromBody] updateUserDTO dto)
         {
-            try
-            {
-                var result = await _userService.updateUserAsync(id, dto);
-                if (!result.Succeeded)
-                    return BadRequest(result.Errors);
+            var result = await _userService.updateUserAsync(id, dto);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
 
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return NoContent();
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult> deleteUser(string id)
         {
-            try
-            {
-                var result = await _userService.deleteUserAsync(id);
-                if (!result.Succeeded)
-                    return BadRequest(result.Errors);
+            var result = await _userService.deleteUserAsync(id);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
 
-                return NoContent();
-            }
-            catch (Exception ex) { 
-                return BadRequest(ex.Message);
-            }
+            return NoContent();
         }
 
 

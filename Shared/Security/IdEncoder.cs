@@ -33,7 +33,7 @@ namespace Shared.Security
             }
             catch { }
 
-            throw new Exception("Invalid ID");
+            throw new ArgumentException("Invalid ID");
         }
 
         private static string PadBase64(string base64)

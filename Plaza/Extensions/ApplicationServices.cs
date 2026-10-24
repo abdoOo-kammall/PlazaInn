@@ -19,27 +19,31 @@ using PlazaService.ContactUsWithWorkingHours;
 using PlazaService.HomeSliders;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
-using PlazaService.Menu;
 using PlazaService.Partner;
 using PlazaService.Payment;
 using PlazaService.SectionImagesService;
 using PlazaService.Users;
+using Shared.Options;
 
 namespace Plaza.Extensions
 {
     public static class ApplicationServices
     {
-        public static IServiceCollection addApplicationServices(this IServiceCollection services)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 
-                options.Password.RequireDigit = false;          
-                options.Password.RequireLowercase = false;    
-                options.Password.RequireUppercase = false;        
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 6;
+                options.Password.RequiredLength = 8;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
 
             })
                 .AddEntityFrameworkStores<PlazaDbContext>()
@@ -55,7 +59,6 @@ namespace Plaza.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IEmailService , EmailService>();
             services.AddScoped<IInsightHotelService, InsightHotelService>();
-            services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IPartnerService, PartnerService>();
             services.AddScoped<IPartnerRepository, PartnerRepository>();
             services.AddHttpClient<IPaymobService, PaymentService>();
@@ -66,14 +69,16 @@ namespace Plaza.Extensions
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IRoomAvailabilityService, RoomAvailabilityService>();
 
+            services.AddOptions<BookingOptions>()
+                .BindConfiguration(BookingOptions.SectionName)
+                .Validate(o => o.TaxRate >= 0 && o.TaxRate < 1, "Booking:TaxRate must be between 0 and 1 (e.g. 0.28).")
+                .Validate(o => o.PendingExpiryMinutes > 0, "Booking:PendingExpiryMinutes must be positive.")
+                .Validate(o => o.CleanupIntervalMinutes > 0, "Booking:CleanupIntervalMinutes must be positive.")
+                .ValidateOnStart();
+            services.AddHostedService<ExpiredBookingsCleanupService>();
 
-
-
-
-
-
-
-
+            services.AddHealthChecks()
+                .AddDbContextCheck<PlazaDbContext>("database");
             return services;
         }
     }

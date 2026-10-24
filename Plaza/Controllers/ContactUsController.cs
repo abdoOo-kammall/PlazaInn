@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PlazaCore.ServiceContract;
 using Shared.DTO.ContactUs;
 
@@ -26,6 +27,7 @@ namespace PlazaApi.Controllers
 
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update( [FromBody] UpdateContactUsDto dto)
         {
             

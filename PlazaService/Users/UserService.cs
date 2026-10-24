@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Plaza.Exceptions;
 using PlazaCore.Entites;
 using PlazaCore.RepositoryContract;
 using PlazaCore.ServiceContract;
@@ -30,6 +31,9 @@ namespace PlazaService.Users
           
             if (!Enum.IsDefined(typeof(Role), role))
                 throw new ArgumentException($"Invalid role: {role}");
+            if (!await _roleManager.RoleExistsAsync(role.ToString()))
+                return RoleNotFound(role.ToString());
+
             var result = await _userManager.CreateAsync(user , password);
             if (!result.Succeeded)
                 return result;
@@ -41,7 +45,7 @@ namespace PlazaService.Users
         public async Task<IdentityResult> deleteUserAsync(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null) throw new Exception("User not found.");
+            if (user == null) throw new NotFoundException("User not found.");
            var result = await _userManager.DeleteAsync(user);
             return result;
 
@@ -57,6 +61,11 @@ namespace PlazaService.Users
             return await _userRepo.GetByIdAsync(id);
         }
 
+        public async Task<IReadOnlyDictionary<string, string>> getUserRolesLookupAsync()
+        {
+            return await _userRepo.GetUserRoleNamesAsync();
+        }
+
         public async Task<string> getUserRoleAsync(ApplicationUser user)
         {
             var role = await _userManager.GetRolesAsync(user);
@@ -67,7 +76,7 @@ namespace PlazaService.Users
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                throw new Exception("User not found.");
+                throw new NotFoundException("User not found.");
 
             if (!string.IsNullOrWhiteSpace(dto.UserName))
                 user.UserName = dto.UserName;
@@ -75,7 +84,7 @@ namespace PlazaService.Users
             if (!string.IsNullOrWhiteSpace(dto.Password))
             {
                 if (dto.Password != dto.PasswordConfirmed)
-                    throw new Exception("Password and confirmation do not match.");
+                    throw new ArgumentException("Password and confirmation do not match.");
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var passwordResult = await _userManager.ResetPasswordAsync(user, token, dto.Password);
@@ -83,23 +92,39 @@ namespace PlazaService.Users
                     return passwordResult;
             }
 
+            if (!Enum.IsDefined(typeof(Role), dto.Role))
+                throw new ArgumentException($"Invalid role: {dto.Role}");
+
             var currentRoles = await _userManager.GetRolesAsync(user);
             var newRole = dto.Role.ToString();
 
             if (!currentRoles.Contains(newRole))
             {
-                if (currentRoles.Any())
-                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
-
                 if (!await _roleManager.RoleExistsAsync(newRole))
-                    await _roleManager.CreateAsync(new IdentityRole(newRole));
+                    return RoleNotFound(newRole);
 
-                await _userManager.AddToRoleAsync(user, newRole);
+                if (currentRoles.Any())
+                {
+                    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeResult.Succeeded)
+                        return removeResult;
+                }
+
+                var addResult = await _userManager.AddToRoleAsync(user, newRole);
+                if (!addResult.Succeeded)
+                    return addResult;
             }
 
             var result = await _userManager.UpdateAsync(user);
             return result;
         }
+
+        private static IdentityResult RoleNotFound(string role) =>
+            IdentityResult.Failed(new IdentityError
+            {
+                Code = "RoleNotFound",
+                Description = $"Role '{role}' does not exist."
+            });
 
     }
 }

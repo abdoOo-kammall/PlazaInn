@@ -48,6 +48,15 @@ namespace PlazaService.Hotels
 
             }
 
+            public async Task<IReadOnlyList<Hotel>> GetHotelsByIdsAsync(IReadOnlyCollection<int> ids)
+            {
+                if (ids.Count == 0)
+                    return Array.Empty<Hotel>();
+
+                var hotels = await _HotelRepo.GetAllWithSpecAsync(new HotelsByIdsSpec(ids));
+                return hotels.ToList();
+            }
+
             public async Task UpdateHotelAsync(Hotel hotel)
             {
                  _HotelRepo.Update(hotel);

@@ -9,8 +9,7 @@ using Shared.Security;
 
 namespace Plaza.Controllers
 {
-    //[Authorize(Roles = "Admin")]
-
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class RoomController : ControllerBase
@@ -25,6 +24,7 @@ namespace Plaza.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<RoomDTO>>> GetRooms()
         {
             var rooms = await _roomService.GetAllRoomsAsync();
@@ -33,6 +33,7 @@ namespace Plaza.Controllers
         }
 
         [HttpGet("{encodedId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<RoomDTO>> GetRoom(string encodedId)
         {
             int id;
@@ -48,7 +49,7 @@ namespace Plaza.Controllers
             var room = await _roomService.GetRoomAsync(id);
             if (room == null)
             {
-                return Ok();
+                return NotFound();
             }
 
             return Ok(_mapper.Map<RoomDTO>(room));
@@ -73,6 +74,7 @@ namespace Plaza.Controllers
         }
 
         [HttpGet("hotel/{encodedId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<RoomDTO>>> GetRoomsByHotelId(string encodedId)
         {
             int id;
@@ -88,7 +90,7 @@ namespace Plaza.Controllers
             var rooms = await _roomService.GetRoomByHotelIdAsync(id);
             if (rooms == null || !rooms.Any())
             {
-                return Ok();
+                return Ok(Array.Empty<RoomDTO>());
             }
 
             var actualRooms = _mapper.Map<IEnumerable<RoomDTO>>(rooms);
@@ -116,7 +118,7 @@ namespace Plaza.Controllers
             var existingRoom = await _roomService.GetRoomAsync(id);
             if (existingRoom == null)
             {
-                return Ok();
+                return NotFound();
             }
 
             _mapper.Map(roomdto, existingRoom);
@@ -141,7 +143,7 @@ namespace Plaza.Controllers
             var room = await _roomService.GetRoomAsync(id);
             if (room == null)
             {
-                return Ok();
+                return NotFound();
             }
 
             await _roomService.DeleteRoomAsync(id);

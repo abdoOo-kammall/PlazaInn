@@ -16,16 +16,17 @@ namespace Plaza.Mapping.RoomAvailable
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.NameAr, opt => opt.MapFrom(src => src.NameAr))
              .ForMember(dest => dest.PricePerNight, opt => opt.MapFrom(src => src.PricePerNight))
+             .ForMember(dest => dest.PriceForExtraBed, opt => opt.MapFrom(src => src.PriceForExtraBed))
              .ForMember(dest => dest.MaxSleep, opt => opt.MapFrom(src => src.MaxSleep))
              .ForMember(dest => dest.ExtraBedAvailable, opt => opt.MapFrom(src => src.ExtraBed))
              .ForMember(dest => dest.IsAvailable, opt => opt.Ignore())
-            
-             .AfterMap((src, dest, ctx) => {
-                
-                 //var nights = (int)ctx.Items["nights"];
-                 var isBooked = (bool)ctx.Items["isBooked"];
-                 //dest.EstimatedTotalPriceForRequest = src.PricePerNight * nights * 128 / 100;
-                 dest.IsAvailable = !isBooked;
+             .ForMember(dest => dest.AvailableRooms, opt => opt.Ignore())
+             .AfterMap((src, dest, ctx) =>
+             {
+                 var availableRooms = (int)ctx.Items["availableRooms"];
+                 var roomsCount = (int)ctx.Items["roomsCount"];
+                 dest.AvailableRooms = availableRooms;
+                 dest.IsAvailable = availableRooms >= roomsCount;
              });
         }
     }

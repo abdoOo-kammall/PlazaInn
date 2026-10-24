@@ -13,7 +13,7 @@ using Shared.Security;
 
 namespace Plaza.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class PartnerController : ControllerBase
@@ -21,12 +21,14 @@ namespace Plaza.Controllers
         private readonly IPartnerService _partnerService;
         private readonly IHotelService _hotelService;
         private readonly IMapper _mapper;
+        private readonly ILogger<PartnerController> _logger;
 
-        public PartnerController(IPartnerService partnerService, IHotelService hotelService , IMapper mapper)
+        public PartnerController(IPartnerService partnerService, IHotelService hotelService , IMapper mapper, ILogger<PartnerController> logger)
         {
             _partnerService = partnerService;
             this._hotelService = hotelService;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -52,7 +54,7 @@ namespace Plaza.Controllers
             var partner = await _partnerService.GetPartnerAsync(id);
 
             if (partner == null)
-                return Ok(new PartnerDto()); 
+                return NotFound(); 
 
             return Ok(_mapper.Map<PartnerDto>(partner));
         }
@@ -116,9 +118,9 @@ namespace Plaza.Controllers
             if (partnerExist == null)
                 return NotFound();
 
-            var hotelIds = dto.HotelsIds.Select(hId => IdEncoder.DecodeId(hId)).ToList();
-            var hotels = await _hotelService.GetAllHotelsAsync(); 
-            partnerExist.Hotels = hotels.Where(h => hotelIds.Contains(h.Id)).ToList();
+            var hotelIds = dto.HotelsIds.Select(hId => IdEncoder.DecodeId(hId)).Distinct().ToList();
+            var hotels = await _hotelService.GetHotelsByIdsAsync(hotelIds);
+            partnerExist.Hotels = hotels.ToList();
 
             _mapper.Map(dto, partnerExist);
 
@@ -142,7 +144,7 @@ namespace Plaza.Controllers
                 return BadRequest("Invalid hotel ID");
             }
             var partnerExist = await _partnerService.GetPartnerAsync(id);
-            if (partnerExist == null) return Ok();
+            if (partnerExist == null) return NotFound();
             await _partnerService.DeletePartnerAsync(id);
             return NoContent();
         }
@@ -183,46 +185,60 @@ namespace Plaza.Controllers
                 AttachStreams = new List<(MemoryStream Stream, string FileName)>()
             };
 
-            if (dto.Attachments != null)
+            try
             {
-                foreach (var file in dto.Attachments)
+                if (dto.Attachments != null)
                 {
-                    var ms = new MemoryStream();
-                    await file.CopyToAsync(ms);
-                    ms.Position = 0;
-                    internalDto.AttachStreams.Add((ms, file.FileName));
+                    foreach (var file in dto.Attachments)
+                    {
+                        var ms = new MemoryStream();
+                        await file.CopyToAsync(ms);
+                        ms.Position = 0;
+                        internalDto.AttachStreams.Add((ms, file.FileName));
+                    }
                 }
-            }
 
-            var emailTasks = new List<Task>();
-            var semaphore = new SemaphoreSlim(5);
+                // Emails are sent with already-loaded partner data only; the scoped DbContext must not be touched in parallel.
+                var recipients = partners
+                    .Where(p => !string.IsNullOrWhiteSpace(p.Email))
+                    .Select(p => p.Email)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
 
-            foreach (var partner in partners)
-            {
-                if (string.IsNullOrEmpty(partner.Email))
-                    continue;
+                using var semaphore = new SemaphoreSlim(5);
+                var failed = 0;
 
-                await semaphore.WaitAsync();
-
-                emailTasks.Add(Task.Run(async () =>
+                var emailTasks = recipients.Select(async email =>
                 {
+                    await semaphore.WaitAsync();
                     try
                     {
-                        await _partnerService.SendEmailToPartner(partner.Id, internalDto);
+                        await _partnerService.SendEmailToPartner(email, internalDto);
+                    }
+                    catch (Exception ex)
+                    {
+                        Interlocked.Increment(ref failed);
+                        _logger.LogError(ex, "Failed to send broadcast email for hotel {HotelId} to {Email}.", hotelId, email);
                     }
                     finally
                     {
                         semaphore.Release();
                     }
-                }));
+                });
+
+                await Task.WhenAll(emailTasks);
+
+                var sent = recipients.Count - failed;
+                if (failed > 0)
+                    return StatusCode(StatusCodes.Status207MultiStatus, new { message = $"Emails sent to {sent} partner(s); {failed} failed.", sent, failed });
+
+                return Ok(new { message = "Emails sent to all partners successfully", sent, failed });
             }
-
-            await Task.WhenAll(emailTasks);
-
-            foreach (var att in internalDto.AttachStreams)
-                att.Stream.Dispose();
-
-            return Ok(new { message = "Emails sent to all partners successfully" });
+            finally
+            {
+                foreach (var att in internalDto.AttachStreams)
+                    att.Stream.Dispose();
+            }
         }
 
 

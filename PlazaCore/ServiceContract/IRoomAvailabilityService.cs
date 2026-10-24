@@ -1,4 +1,5 @@
-﻿using Shared.DTO.Booking;
+﻿using PlazaCore.Entites;
+using Shared.DTO.Booking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,15 @@ namespace PlazaCore.ServiceContract
         Task<IReadOnlyList<RoomAvailabilityDto>>
             GetHotelRoomsAvailabilityAsync( string encodedHotelId, RoomAvailabilityRequestDto request);
 
-        Task<bool> CheckAvailabilityAsync(BookingRequestDto request);
+        Task<bool> CheckAvailabilityAsync(BookingQuoteRequestDto request);
 
-        Task<decimal> CalculateTotalPriceAsync(BookingRequestDto request);
+        /// <summary>Rooms of the same inventory pool (suites vs. regular rooms) still free on every night of the stay.</summary>
+        Task<int> GetAvailableRoomsAsync(Room room, DateTime checkIn, DateTime checkOut, int? excludeBookingId = null);
+
+        Task<decimal> CalculateTotalPriceAsync(BookingQuoteRequestDto request);
+        decimal CalculateTotalPrice(Room room, int roomsCount, bool extraBed, DateTime checkIn, DateTime checkOut);
+
+        void ValidateStay(Room room, BookingQuoteRequestDto request);
         bool IsDateRangeValid(RoomAvailabilityRequestDto request);
 
     }

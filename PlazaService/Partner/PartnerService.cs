@@ -65,27 +65,32 @@ namespace PlazaService.Partner
             await _partnerRepo.SaveChangesAsync();
         }
 
-        public async Task SendEmailToPartner(int partnerId, SendEmailInternal dto)
+        public async Task SendEmailToPartner(string partnerEmail, SendEmailInternal dto)
         {
-            var partner = await _partnerRepo.GetByIdAsync(partnerId);
-            if (partner == null)
-                throw new Exception("Partner not found");
+            if (string.IsNullOrWhiteSpace(partnerEmail))
+                throw new ArgumentException("Partner email is required.", nameof(partnerEmail));
 
+            // Each recipient gets its own copy because MailMessage disposes attachment streams after sending.
             var clonedStreams = dto.AttachStreams?
                 .Select(att => (Methods.CloneStream(att.Stream), att.FileName))
                 .ToList();
 
-            await _emailService.SendEmailAsync(
-                partner.Email,
-                dto.Subject,
-                dto.Body,
-                clonedStreams
-            );
-
-            if (clonedStreams != null)
+            try
             {
-                foreach (var c in clonedStreams)
-                    c.Item1.Dispose();
+                await _emailService.SendEmailAsync(
+                    partnerEmail,
+                    dto.Subject,
+                    dto.Body,
+                    clonedStreams
+                );
+            }
+            finally
+            {
+                if (clonedStreams != null)
+                {
+                    foreach (var c in clonedStreams)
+                        c.Item1.Dispose();
+                }
             }
         }
 
