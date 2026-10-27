@@ -18,6 +18,11 @@ namespace Shared.Enums
         logo,
         homeSlider,
         aboutUs,
-        None
+        None,
+        // Appended so existing Image.Type values stored in the database do not shift.
+        trip,
+        transport,
+        @event,
+        package
     }
 }

@@ -13,8 +13,7 @@ namespace PlazaCore.Specification.BookingSpecification
         {
             Criteria = b => b.PaymentReference == paymentRef;
 
-            AddInclude(b => b.Room);
-            AddInclude(b => b.Hotel);
+            BookingWithRoomAndHotelSpec.AddBookingItemIncludes(this);
         }
     }
 }

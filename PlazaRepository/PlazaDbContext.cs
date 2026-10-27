@@ -32,6 +32,13 @@ namespace PlazaRepository
         public DbSet<AboutUs> AboutUs { get; set; }
         public DbSet<ContactUs> ContactUs { get; set; }
         public DbSet<WorkingHour> WorkingHours { get; set; }
+        public DbSet<Trip> Trips { get; set; }
+        public DbSet<Transport> Transports { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<Package> Packages { get; set; }
+        public DbSet<PackageTrip> PackageTrips { get; set; }
+        public DbSet<PackageTransport> PackageTransports { get; set; }
+        public DbSet<PackageEvent> PackageEvents { get; set; }
   
     }
 }

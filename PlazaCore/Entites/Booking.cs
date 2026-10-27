@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Shared.Enums;
+﻿using Shared.Enums;
 
 namespace PlazaCore.Entites
 {
     public class Booking : BaseEntity
     {
-        [ForeignKey("Hotel")]
-        public int HotelId { get; set; }
-        public Hotel Hotel { get; set; }
-        [ForeignKey("Room")]
+        public BookingType BookingType { get; set; } = BookingType.Hotel;
 
-        public int RoomId { get; set; }
-        public Room Room { get; set; }
+        public int? HotelId { get; set; }
+        public Hotel? Hotel { get; set; }
+
+        public int? RoomId { get; set; }
+        public Room? Room { get; set; }
+
+        public int? TripId { get; set; }
+        public Trip? Trip { get; set; }
+
+        public int? TransportId { get; set; }
+        public Transport? Transport { get; set; }
+
+        public int? EventId { get; set; }
+        public Event? Event { get; set; }
+
+        public int? PackageId { get; set; }
+        public Package? Package { get; set; }
+
+        public DateTime? ServiceDate { get; set; }
+        public int Quantity { get; set; } = 1;
 
         public string? UserId { get; set; }
 

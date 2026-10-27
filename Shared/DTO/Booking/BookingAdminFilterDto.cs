@@ -9,6 +9,7 @@ namespace Shared.DTO.Booking
         public DateTime? From { get; set; }
         public DateTime? To { get; set; }
         public BookingStatus? Status { get; set; }
+        public BookingType? BookingType { get; set; }
     }
 }
 

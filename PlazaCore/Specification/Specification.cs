@@ -9,11 +9,13 @@ namespace PlazaCore.Specification
     {
         public Expression<Func<T, bool>> Criteria { get;  set; }
         public List<Expression<Func<T, object>>> Includes { get; } = new();
+        public List<string> IncludeStrings { get; } = new();
         public Expression<Func<T, object>> OrderBy { get; private set; }
         public Expression<Func<T, object>> OrderByDesc { get; private set; }
         public int Skip { get; private set; }
         public int Take { get; private set; }
         public bool IsPaginationEnabled { get; private set; }
+        public bool AsSplitQuery { get; private set; }
 
         public Specification() { }
 
@@ -25,6 +27,16 @@ namespace PlazaCore.Specification
         protected void AddInclude(Expression<Func<T, object>> includeExpression)
         {
             Includes.Add(includeExpression);
+        }
+
+        protected void AddInclude(string navigationPath)
+        {
+            IncludeStrings.Add(navigationPath);
+        }
+
+        protected void ApplySplitQuery()
+        {
+            AsSplitQuery = true;
         }
 
         protected void ApplyOrderBy(Expression<Func<T, object>> orderByExpression)

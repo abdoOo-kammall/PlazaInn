@@ -40,13 +40,14 @@ namespace PlazaAPI.Controllers
             [FromQuery] int? hotelId,
             [FromQuery] DateTime? from,
             [FromQuery] DateTime? to,
-            [FromQuery] BookingStatus? status)
+            [FromQuery] BookingStatus? status,
+            [FromQuery] BookingType? bookingType)
         {
             var userId = User.GetUserId();
             if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized(new { success = false, message = "User id claim is missing in token." });
 
-            var bookings = await _bookingService.GetUserBookingsAsync(userId, hotelId, from, to, status);
+            var bookings = await _bookingService.GetUserBookingsAsync(userId, hotelId, from, to, status, bookingType);
             return Ok(new { success = true, data = bookings });
         }
 

@@ -283,6 +283,11 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<int>("Adults")
                         .HasColumnType("int");
 
+                    b.Property<int>("BookingType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<DateTime>("CheckIn")
                         .HasColumnType("datetime2");
 
@@ -308,10 +313,13 @@ namespace PlazaRepository.Data.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
+                    b.Property<int?>("EventId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("ExtraBed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("HotelId")
+                    b.Property<int?>("HotelId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsPaid")
@@ -321,15 +329,26 @@ namespace PlazaRepository.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("PackageId")
+                        .HasColumnType("int");
+
                     b.Property<string>("PaymentReference")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
                     b.Property<int>("RoomsBooked")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("ServiceDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -337,6 +356,12 @@ namespace PlazaRepository.Data.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("TransportId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TripId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -348,17 +373,38 @@ namespace PlazaRepository.Data.Migrations
 
                     b.HasIndex("CustomerEmail");
 
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("PackageId");
+
                     b.HasIndex("PaymentReference");
 
                     b.HasIndex("RoomId");
 
+                    b.HasIndex("TransportId");
+
+                    b.HasIndex("TripId");
+
                     b.HasIndex("UserId");
+
+                    b.HasIndex("BookingType", "EventId");
+
+                    b.HasIndex("BookingType", "PackageId");
 
                     b.HasIndex("Status", "CreatedAt");
 
+                    b.HasIndex("BookingType", "TransportId", "ServiceDate");
+
+                    b.HasIndex("BookingType", "TripId", "ServiceDate");
+
                     b.HasIndex("HotelId", "CheckIn", "CheckOut");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", t =>
+                        {
+                            t.HasCheckConstraint("CK_Bookings_Quantity", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_Bookings_Target", "([BookingType] = 0 AND [HotelId] IS NOT NULL AND [RoomId] IS NOT NULL AND [TripId] IS NULL AND [TransportId] IS NULL AND [EventId] IS NULL AND [PackageId] IS NULL) OR ([BookingType] = 1 AND [TripId] IS NOT NULL AND [HotelId] IS NULL AND [RoomId] IS NULL AND [TransportId] IS NULL AND [EventId] IS NULL AND [PackageId] IS NULL AND [ServiceDate] IS NOT NULL) OR ([BookingType] = 2 AND [TransportId] IS NOT NULL AND [HotelId] IS NULL AND [RoomId] IS NULL AND [TripId] IS NULL AND [EventId] IS NULL AND [PackageId] IS NULL AND [ServiceDate] IS NOT NULL) OR ([BookingType] = 3 AND [EventId] IS NOT NULL AND [HotelId] IS NULL AND [RoomId] IS NULL AND [TripId] IS NULL AND [TransportId] IS NULL AND [PackageId] IS NULL) OR ([BookingType] = 4 AND [PackageId] IS NOT NULL AND [TripId] IS NULL AND [TransportId] IS NULL AND [EventId] IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.ContactUs", b =>
@@ -399,6 +445,89 @@ namespace PlazaRepository.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ContactUs");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DescriptionAr")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("LocationAr")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("TicketPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TotalTickets")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventDate");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("EventDate", "EndDate");
+
+                    b.ToTable("Events", t =>
+                        {
+                            t.HasCheckConstraint("CK_Events_Dates", "[EndDate] IS NULL OR [EndDate] >= [EventDate]");
+
+                            t.HasCheckConstraint("CK_Events_TicketPrice", "[TicketPrice] > 0");
+
+                            t.HasCheckConstraint("CK_Events_TotalTickets", "[TotalTickets] > 0");
+                        });
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.HomeSlider", b =>
@@ -613,6 +742,187 @@ namespace PlazaRepository.Data.Migrations
                     b.ToTable("InsightHotel");
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.Package", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DescriptionAr")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("HotelId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("MaxPackagesAvailable")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int?>("NightsCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PackagePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HotelId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("StartDate", "EndDate");
+
+                    b.ToTable("Packages", t =>
+                        {
+                            t.HasCheckConstraint("CK_Packages_Dates", "[EndDate] IS NULL OR ([StartDate] IS NOT NULL AND [EndDate] >= [StartDate])");
+
+                            t.HasCheckConstraint("CK_Packages_DurationDays", "[DurationDays] > 0");
+
+                            t.HasCheckConstraint("CK_Packages_HotelStayComplete", "([HotelId] IS NULL AND [RoomId] IS NULL AND [NightsCount] IS NULL) OR ([HotelId] IS NOT NULL AND [RoomId] IS NOT NULL AND [NightsCount] IS NOT NULL AND [NightsCount] > 0)");
+
+                            t.HasCheckConstraint("CK_Packages_MaxPackagesAvailable", "[MaxPackagesAvailable] > 0");
+
+                            t.HasCheckConstraint("CK_Packages_PackagePrice", "[PackagePrice] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.PackageEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("PackageId", "EventId")
+                        .IsUnique();
+
+                    b.ToTable("PackageEvents");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.PackageTransport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransportId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransportId");
+
+                    b.HasIndex("PackageId", "TransportId")
+                        .IsUnique();
+
+                    b.ToTable("PackageTransports");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.PackageTrip", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripId");
+
+                    b.HasIndex("PackageId", "TripId")
+                        .IsUnique();
+
+                    b.ToTable("PackageTrips");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.Partners", b =>
                 {
                     b.Property<int>("Id")
@@ -691,6 +1001,220 @@ namespace PlazaRepository.Data.Migrations
                     b.HasIndex("HotelId");
 
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Transport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AvailableVehicles")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DescriptionAr")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DropoffLocation")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("DropoffLocationAr")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("MaxLuggage")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxPassengers")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("PickupLocation")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("PickupLocationAr")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<decimal>("PricePerTrip")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VehicleType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("VehicleTypeAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("VehicleType");
+
+                    b.ToTable("Transports", t =>
+                        {
+                            t.HasCheckConstraint("CK_Transports_AvailableVehicles", "[AvailableVehicles] > 0");
+
+                            t.HasCheckConstraint("CK_Transports_MaxLuggage", "[MaxLuggage] >= 0");
+
+                            t.HasCheckConstraint("CK_Transports_MaxPassengers", "[MaxPassengers] > 0");
+
+                            t.HasCheckConstraint("CK_Transports_PricePerTrip", "[PricePerTrip] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Trip", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CityAr")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DescriptionAr")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationHours")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Itinerary")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ItineraryAr")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("PricePerChild")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerPerson")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("City");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("StartDate", "EndDate");
+
+                    b.ToTable("Trips", t =>
+                        {
+                            t.HasCheckConstraint("CK_Trips_Dates", "[EndDate] IS NULL OR ([StartDate] IS NOT NULL AND [EndDate] >= [StartDate])");
+
+                            t.HasCheckConstraint("CK_Trips_Duration", "[DurationDays] > 0 OR [DurationHours] > 0");
+
+                            t.HasCheckConstraint("CK_Trips_DurationDays", "[DurationDays] >= 0");
+
+                            t.HasCheckConstraint("CK_Trips_DurationHours", "[DurationHours] >= 0");
+
+                            t.HasCheckConstraint("CK_Trips_MaxCapacity", "[MaxCapacity] > 0");
+
+                            t.HasCheckConstraint("CK_Trips_PricePerChild", "[PricePerChild] > 0");
+
+                            t.HasCheckConstraint("CK_Trips_PricePerPerson", "[PricePerPerson] > 0");
+                        });
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.WorkingHour", b =>
@@ -788,26 +1312,52 @@ namespace PlazaRepository.Data.Migrations
 
             modelBuilder.Entity("PlazaCore.Entites.Booking", b =>
                 {
+                    b.HasOne("PlazaCore.Entites.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("PlazaCore.Entites.Hotel", "Hotel")
                         .WithMany("Bookings")
                         .HasForeignKey("HotelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PlazaCore.Entites.Package", "Package")
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("PlazaCore.Entites.Room", "Room")
                         .WithMany("Bookings")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PlazaCore.Entites.Transport", "Transport")
+                        .WithMany()
+                        .HasForeignKey("TransportId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PlazaCore.Entites.Trip", "Trip")
+                        .WithMany()
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("PlazaCore.Entites.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.Navigation("Event");
+
                     b.Navigation("Hotel");
 
+                    b.Navigation("Package");
+
                     b.Navigation("Room");
+
+                    b.Navigation("Transport");
+
+                    b.Navigation("Trip");
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.InsightHotel", b =>
@@ -819,6 +1369,80 @@ namespace PlazaRepository.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Package", b =>
+                {
+                    b.HasOne("PlazaCore.Entites.Hotel", "Hotel")
+                        .WithMany()
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PlazaCore.Entites.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Hotel");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.PackageEvent", b =>
+                {
+                    b.HasOne("PlazaCore.Entites.Event", "Event")
+                        .WithMany("PackageEvents")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlazaCore.Entites.Package", "Package")
+                        .WithMany("PackageEvents")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Package");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.PackageTransport", b =>
+                {
+                    b.HasOne("PlazaCore.Entites.Package", "Package")
+                        .WithMany("PackageTransports")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PlazaCore.Entites.Transport", "Transport")
+                        .WithMany("PackageTransports")
+                        .HasForeignKey("TransportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Package");
+
+                    b.Navigation("Transport");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.PackageTrip", b =>
+                {
+                    b.HasOne("PlazaCore.Entites.Package", "Package")
+                        .WithMany("PackageTrips")
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PlazaCore.Entites.Trip", "Trip")
+                        .WithMany("PackageTrips")
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Package");
+
+                    b.Navigation("Trip");
                 });
 
             modelBuilder.Entity("PlazaCore.Entites.Room", b =>
@@ -848,6 +1472,11 @@ namespace PlazaRepository.Data.Migrations
                     b.Navigation("WorkingHours");
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.Event", b =>
+                {
+                    b.Navigation("PackageEvents");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.Hotel", b =>
                 {
                     b.Navigation("Bookings");
@@ -857,9 +1486,28 @@ namespace PlazaRepository.Data.Migrations
                     b.Navigation("Rooms");
                 });
 
+            modelBuilder.Entity("PlazaCore.Entites.Package", b =>
+                {
+                    b.Navigation("PackageEvents");
+
+                    b.Navigation("PackageTransports");
+
+                    b.Navigation("PackageTrips");
+                });
+
             modelBuilder.Entity("PlazaCore.Entites.Room", b =>
                 {
                     b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Transport", b =>
+                {
+                    b.Navigation("PackageTransports");
+                });
+
+            modelBuilder.Entity("PlazaCore.Entites.Trip", b =>
+                {
+                    b.Navigation("PackageTrips");
                 });
 #pragma warning restore 612, 618
         }

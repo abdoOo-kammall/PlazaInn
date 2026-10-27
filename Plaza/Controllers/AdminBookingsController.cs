@@ -24,9 +24,10 @@ namespace Plaza.Controllers
             [FromQuery] int? hotelId,
             [FromQuery] DateTime? from,
             [FromQuery] DateTime? to,
-            [FromQuery] BookingStatus? status)
+            [FromQuery] BookingStatus? status,
+            [FromQuery] BookingType? bookingType)
         {
-            var bookings = await _bookingService.GetAdminBookingsAsync(hotelId, from, to, status);
+            var bookings = await _bookingService.GetAdminBookingsAsync(hotelId, from, to, status, bookingType);
             return Ok(new { success = true, data = bookings });
         }
     }

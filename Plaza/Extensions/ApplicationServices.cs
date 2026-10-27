@@ -19,9 +19,13 @@ using PlazaService.ContactUsWithWorkingHours;
 using PlazaService.HomeSliders;
 using PlazaService.Hotels;
 using PlazaService.InsightHotels;
+using PlazaService.Events;
+using PlazaService.Packages;
 using PlazaService.Partner;
 using PlazaService.Payment;
 using PlazaService.SectionImagesService;
+using PlazaService.Transports;
+using PlazaService.Trips;
 using PlazaService.Users;
 using Shared.Options;
 
@@ -68,6 +72,10 @@ namespace Plaza.Extensions
             services.AddScoped<IContactUsService, ContactUsService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IRoomAvailabilityService, RoomAvailabilityService>();
+            services.AddScoped<ITripService, TripService>();
+            services.AddScoped<ITransportService, TransportService>();
+            services.AddScoped<IEventService, EventService>();
+            services.AddScoped<IPackageService, PackageService>();
 
             services.AddOptions<BookingOptions>()
                 .BindConfiguration(BookingOptions.SectionName)

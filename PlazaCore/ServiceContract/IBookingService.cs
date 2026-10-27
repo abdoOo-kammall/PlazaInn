@@ -34,13 +34,15 @@ namespace PlazaCore.ServiceContract
             int? hotelId = null,
             DateTime? from = null,
             DateTime? to = null,
-            BookingStatus? status = null);
+            BookingStatus? status = null,
+            BookingType? bookingType = null);
 
         Task<IReadOnlyList<BookingResponseDto>> GetAdminBookingsAsync(
             int? hotelId = null,
             DateTime? from = null,
             DateTime? to = null,
-            BookingStatus? status = null);
+            BookingStatus? status = null,
+            BookingType? bookingType = null);
 
     }
 

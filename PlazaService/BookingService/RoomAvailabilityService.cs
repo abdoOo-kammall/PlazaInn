@@ -72,6 +72,9 @@ namespace PlazaService.BookingService
 
         public async Task<bool> CheckAvailabilityAsync(BookingQuoteRequestDto request)
         {
+            if (string.IsNullOrWhiteSpace(request.EncodedRoomId))
+                throw new ArgumentException("Room is required.");
+
             var room = await GetRoomWithHotelAsync(IdEncoder.DecodeId(request.EncodedRoomId));
             ValidateStay(room, request);
 
@@ -92,6 +95,9 @@ namespace PlazaService.BookingService
 
         public async Task<decimal> CalculateTotalPriceAsync(BookingQuoteRequestDto request)
         {
+            if (string.IsNullOrWhiteSpace(request.EncodedRoomId))
+                throw new ArgumentException("Room is required.");
+
             var room = await GetRoomWithHotelAsync(IdEncoder.DecodeId(request.EncodedRoomId));
             ValidateStay(room, request);
 

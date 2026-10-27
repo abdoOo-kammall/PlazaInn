@@ -9,8 +9,21 @@ namespace Shared.DTO.Booking
     public class BookingResponseDto
     {
         public string EncodedId { get; set; } = null!; // بدل Id حابب تشفره
-        public string EncodedHotelId { get; set; } = null!;
-        public string EncodedRoomId { get; set; } = null!;
+        public string BookingType { get; set; } = "Hotel";
+        public string? EncodedHotelId { get; set; }
+        public string? EncodedRoomId { get; set; }
+        public string? EncodedTripId { get; set; }
+        public string? EncodedTransportId { get; set; }
+        public string? EncodedEventId { get; set; }
+        public string? EncodedPackageId { get; set; }
+        public string? ItemName { get; set; }
+        public string? ItemNameAr { get; set; }
+        public string? HotelName { get; set; }
+        public string? HotelNameAr { get; set; }
+        public string? RoomName { get; set; }
+        public string? RoomNameAr { get; set; }
+        public DateTime? ServiceDate { get; set; }
+        public int Quantity { get; set; }
         public int Adults { get; set; }
         public int Children { get; set; }
         public int RoomsBooked { get; set; }

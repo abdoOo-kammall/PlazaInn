@@ -9,10 +9,12 @@ namespace PlazaCore.Specification
     {
         Expression<Func<T, bool>> Criteria { get; }
         List<Expression<Func<T, object>>> Includes { get; }
+        List<string> IncludeStrings { get; }
         Expression<Func<T, object>> OrderBy { get; }
         Expression<Func<T, object>> OrderByDesc { get; }
         int Skip { get; }
         int Take { get; }
         bool IsPaginationEnabled { get; }
+        bool AsSplitQuery { get; }
     }
 }
