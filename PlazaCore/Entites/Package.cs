@@ -8,6 +8,7 @@ namespace PlazaCore.Entites
         public string DescriptionAr { get; set; } = null!;
         public int DurationDays { get; set; }
         public decimal PackagePrice { get; set; }
+        public string? PriceRange { get; set; }
         public int MaxPackagesAvailable { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

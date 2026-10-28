@@ -17,6 +17,7 @@ namespace Shared.DTO.Trip
         public int DurationHours { get; set; }
         public decimal PricePerPerson { get; set; }
         public decimal PricePerChild { get; set; }
+        public string? PriceRange { get; set; }
         public int MaxCapacity { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

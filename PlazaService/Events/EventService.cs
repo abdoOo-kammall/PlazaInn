@@ -9,11 +9,21 @@ namespace PlazaService.Events
 {
     public class EventService : IEventService
     {
-        private readonly IGenericRepository<Event> _events;
+        private const string DeleteConflictMessage =
+            "Cannot delete this event because it has existing bookings or is included in a package.";
 
-        public EventService(IGenericRepository<Event> events)
+        private readonly IGenericRepository<Event> _events;
+        private readonly IGenericRepository<Booking> _bookings;
+        private readonly IGenericRepository<PackageEvent> _packageEvents;
+
+        public EventService(
+            IGenericRepository<Event> events,
+            IGenericRepository<Booking> bookings,
+            IGenericRepository<PackageEvent> packageEvents)
         {
             _events = events;
+            _bookings = bookings;
+            _packageEvents = packageEvents;
         }
 
         public async Task<IEnumerable<Event>> GetEventsAsync(EventFilterDto filter, bool activeOnly)
@@ -43,10 +53,19 @@ namespace PlazaService.Events
             if (entity == null)
                 return;
 
+            await CatalogPersistence.EnsureNotReferencedAsync(
+                _bookings,
+                booking => booking.EventId == id,
+                DeleteConflictMessage);
+            await CatalogPersistence.EnsureNotReferencedAsync(
+                _packageEvents,
+                link => link.EventId == id,
+                DeleteConflictMessage);
+
             _events.Delete(entity);
             await CatalogPersistence.SaveOrConflictAsync(
                 () => _events.SaveChangesAsync(),
-                "This event is included in a package and cannot be deleted.");
+                DeleteConflictMessage);
         }
     }
 }

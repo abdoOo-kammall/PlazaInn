@@ -36,6 +36,9 @@ namespace Shared.DTO.Event
         [Range(typeof(decimal), "0.01", "999999999999.99", ErrorMessage = "Ticket price must be greater than 0")]
         public decimal TicketPrice { get; set; }
 
+        [StringLength(200, ErrorMessage = "Price range cannot exceed 200 characters")]
+        public string? PriceRange { get; set; }
+
         [Range(1, 1000000, ErrorMessage = "Total tickets must be at least 1")]
         public int TotalTickets { get; set; }
 

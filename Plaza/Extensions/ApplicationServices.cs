@@ -13,6 +13,7 @@ using PlazaRepository.UserRepo;
 using PlazaService.AboutUsImages;
 using PlazaService.Account;
 using PlazaService.BookingService;
+using PlazaService.Dashboard;
 
 //using PlazaService.BookingService;
 using PlazaService.ContactUsWithWorkingHours;
@@ -76,6 +77,11 @@ namespace Plaza.Extensions
             services.AddScoped<ITransportService, TransportService>();
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
+            services.AddOptions<CloudinarySettings>()
+                .BindConfiguration(CloudinarySettings.SectionName);
+            services.AddHostedService<StoredImageLocationWarmup>();
 
             services.AddOptions<BookingOptions>()
                 .BindConfiguration(BookingOptions.SectionName)

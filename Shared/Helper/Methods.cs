@@ -13,8 +13,11 @@ namespace Shared.Helper
 {
     public static class Methods
     {
-           // Key: "{storageFolder}/{entityType}/{id}", value: path relative to the web root, or null when no file exists.
+           // Key: "{storageFolder}/{entityType}/{id}", value: path relative to the web root, an absolute URL, or null when no file exists.
            private static readonly ConcurrentDictionary<string, string?> FilePathCache = new(StringComparer.OrdinalIgnoreCase);
+
+           // Image.Id -> Image.Url (wwwroot relative path or absolute Cloudinary URL).
+           private static readonly ConcurrentDictionary<int, string?> StoredLocations = new();
 
            private static string _webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
@@ -33,6 +36,38 @@ namespace Shared.Helper
 
                 _webRootPath = webRootPath;
                 FilePathCache.Clear();
+                StoredLocations.Clear();
+           }
+
+           public static bool IsRemoteUrl(string? value)
+           {
+                if (string.IsNullOrWhiteSpace(value))
+                    return false;
+
+                var trimmed = value.Trim();
+                return trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                    || trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase);
+           }
+
+           /// <summary>Records Image.Url so mapping can return a Cloudinary URL without scanning wwwroot.</summary>
+           public static void RememberStoredLocation(int id, string? storedLocation)
+           {
+                if (id <= 0)
+                    return;
+
+                StoredLocations[id] = string.IsNullOrWhiteSpace(storedLocation) ? null : storedLocation.Trim();
+           }
+
+           public static void ForgetStoredLocation(int id, string? entityType)
+           {
+                if (id <= 0)
+                    return;
+
+                StoredLocations.TryRemove(id, out _);
+                if (string.IsNullOrWhiteSpace(entityType))
+                    return;
+
+                FilePathCache[BuildCacheKey(GetStorageFolder(entityType), entityType, id)] = null;
            }
 
            public static string GetStorageFolder(string entityType) =>
@@ -79,13 +114,25 @@ namespace Shared.Helper
 
                 foreach (var id in ids)
                 {
+                    if (StoredLocations.TryGetValue(id, out var stored) && IsRemoteUrl(stored))
+                    {
+                        list.Add(new FileDto
+                        {
+                            Id = id,
+                            Url = stored!.Trim()
+                        });
+                        continue;
+                    }
+
                     var relativePath = ResolveRelativePath(baseFolder, entityType, id);
                     if (relativePath != null)
                     {
                         list.Add(new FileDto
                         {
                             Id = id,
-                            Url = ImagePathCreation.BuildFullImageUrl(relativePath)
+                            Url = IsRemoteUrl(relativePath)
+                                ? relativePath.Trim()
+                                : ImagePathCreation.BuildFullImageUrl(relativePath)
                         });
                     }
                 }

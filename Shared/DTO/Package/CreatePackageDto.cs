@@ -26,6 +26,9 @@ namespace Shared.DTO.Package
         [Range(typeof(decimal), "0.01", "999999999999.99", ErrorMessage = "Package price must be greater than 0")]
         public decimal PackagePrice { get; set; }
 
+        [StringLength(200, ErrorMessage = "Price range cannot exceed 200 characters")]
+        public string? PriceRange { get; set; }
+
         [Range(1, 100000, ErrorMessage = "Max packages available must be at least 1")]
         public int MaxPackagesAvailable { get; set; }
 

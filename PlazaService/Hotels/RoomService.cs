@@ -8,16 +8,27 @@ using PlazaCore.Entites;
 using PlazaCore.RepositoryContract;
 using PlazaCore.ServiceContract;
 using PlazaCore.Specification.RoomSpecification;
+using PlazaService.Catalog;
 
 namespace PlazaService.Hotels
 {
     public class RoomService : IRoomService
     {
-        private readonly IGenericRepository<Room> _roomRepo;
+        private const string DeleteConflictMessage =
+            "Cannot delete this room because it has existing bookings or packages.";
 
-        public RoomService(IGenericRepository<Room> genericRepository)
+        private readonly IGenericRepository<Room> _roomRepo;
+        private readonly IGenericRepository<Booking> _bookings;
+        private readonly IGenericRepository<Package> _packages;
+
+        public RoomService(
+            IGenericRepository<Room> genericRepository,
+            IGenericRepository<Booking> bookings,
+            IGenericRepository<Package> packages)
         {
-            this._roomRepo = genericRepository;
+            _roomRepo = genericRepository;
+            _bookings = bookings;
+            _packages = packages;
         }
         public async Task AddRoomAsync(Room room)
         {
@@ -32,11 +43,22 @@ namespace PlazaService.Hotels
         public async Task DeleteRoomAsync(int id)
         {
             var room = await _roomRepo.GetByIdAsync(id);
-            if (room != null) {
-                 _roomRepo.Delete(room);
-                await _roomRepo.SaveChangesAsync();
-            }
-      
+            if (room == null)
+                return;
+
+            await CatalogPersistence.EnsureNotReferencedAsync(
+                _bookings,
+                booking => booking.RoomId == id,
+                DeleteConflictMessage);
+            await CatalogPersistence.EnsureNotReferencedAsync(
+                _packages,
+                package => package.RoomId == id,
+                DeleteConflictMessage);
+
+            _roomRepo.Delete(room);
+            await CatalogPersistence.SaveOrConflictAsync(
+                () => _roomRepo.SaveChangesAsync(),
+                DeleteConflictMessage);
         }
 
         public async Task<IEnumerable<Room>> GetAllRoomsAsync()

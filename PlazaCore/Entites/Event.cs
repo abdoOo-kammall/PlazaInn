@@ -11,6 +11,7 @@ namespace PlazaCore.Entites
         public DateTime EventDate { get; set; }
         public DateTime? EndDate { get; set; }
         public decimal TicketPrice { get; set; }
+        public string? PriceRange { get; set; }
         public int TotalTickets { get; set; }
         public bool IsActive { get; set; } = true;
         public string? ImageIds { get; set; }

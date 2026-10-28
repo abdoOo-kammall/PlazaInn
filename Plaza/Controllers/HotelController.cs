@@ -26,9 +26,9 @@ namespace Plaza.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task <ActionResult<IEnumerable<HotelDto>>> GetHotels() { 
-            
-            var hotels = await _hotelService.GetAllHotelsAsync();
+        public async Task <ActionResult<IEnumerable<HotelDto>>> GetHotels([FromQuery] HotelFilterDto filter) {
+            filter ??= new HotelFilterDto();
+            var hotels = await _hotelService.GetAllHotelsAsync(filter.MinPrice, filter.MaxPrice);
             var hotelsResult = _mapper.Map<IEnumerable<HotelDto>>(hotels);
             return Ok(hotelsResult);
         }

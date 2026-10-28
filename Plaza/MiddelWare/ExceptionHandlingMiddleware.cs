@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Plaza.Exceptions;
 
 namespace Plaza.MiddelWare
@@ -45,6 +46,7 @@ namespace Plaza.MiddelWare
                 NotFoundException => (StatusCodes.Status404NotFound, "Resource not found", ex.Message),
                 ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden", ex.Message),
                 ConflictException => (StatusCodes.Status409Conflict, "Conflict", ex.Message),
+                DbUpdateException => (StatusCodes.Status409Conflict, "Conflict", "This item cannot be deleted or modified because it is linked to other records."),
                 ArgumentException => (StatusCodes.Status400BadRequest, "Invalid request", ex.Message),
                 BadHttpRequestException badRequest => (badRequest.StatusCode, "Invalid request", ex.Message),
                 PaymentGatewayException => (StatusCodes.Status502BadGateway, "Payment gateway error", ex.Message),

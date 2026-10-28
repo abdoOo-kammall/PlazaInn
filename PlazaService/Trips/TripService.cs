@@ -9,11 +9,21 @@ namespace PlazaService.Trips
 {
     public class TripService : ITripService
     {
-        private readonly IGenericRepository<Trip> _trips;
+        private const string DeleteConflictMessage =
+            "Cannot delete this trip because it has existing bookings or is included in a package.";
 
-        public TripService(IGenericRepository<Trip> trips)
+        private readonly IGenericRepository<Trip> _trips;
+        private readonly IGenericRepository<Booking> _bookings;
+        private readonly IGenericRepository<PackageTrip> _packageTrips;
+
+        public TripService(
+            IGenericRepository<Trip> trips,
+            IGenericRepository<Booking> bookings,
+            IGenericRepository<PackageTrip> packageTrips)
         {
             _trips = trips;
+            _bookings = bookings;
+            _packageTrips = packageTrips;
         }
 
         public async Task<IEnumerable<Trip>> GetTripsAsync(TripFilterDto filter, bool activeOnly)
@@ -43,10 +53,19 @@ namespace PlazaService.Trips
             if (trip == null)
                 return;
 
+            await CatalogPersistence.EnsureNotReferencedAsync(
+                _bookings,
+                booking => booking.TripId == id,
+                DeleteConflictMessage);
+            await CatalogPersistence.EnsureNotReferencedAsync(
+                _packageTrips,
+                link => link.TripId == id,
+                DeleteConflictMessage);
+
             _trips.Delete(trip);
             await CatalogPersistence.SaveOrConflictAsync(
                 () => _trips.SaveChangesAsync(),
-                "This trip is included in a package and cannot be deleted.");
+                DeleteConflictMessage);
         }
     }
 }

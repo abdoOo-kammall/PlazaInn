@@ -82,7 +82,7 @@ namespace Plaza
             ImagePathCreation.Configure(baseUrl);
 
             var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
-                ?? ["http://localhost:4200", "https://localhost:4200", "http://plazainn.runasp.net"];
+                ?? ["http://localhost:4200", "https://localhost:4200", "http://plazainn.runasp.net" , "https://starcotravel.com.app" , "https://starcotravel.netlify.app/"];
 
             builder.Services.AddCors(options =>
             {

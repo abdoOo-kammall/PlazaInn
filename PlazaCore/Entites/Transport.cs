@@ -15,6 +15,7 @@ namespace PlazaCore.Entites
         public int MaxPassengers { get; set; }
         public int MaxLuggage { get; set; }
         public decimal PricePerTrip { get; set; }
+        public string? PriceRange { get; set; }
         public int AvailableVehicles { get; set; }
         public bool IsActive { get; set; } = true;
         public string? ImageIds { get; set; }

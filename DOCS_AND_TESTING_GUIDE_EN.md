@@ -155,7 +155,7 @@ Typical sequence:
 
 ### 2.2 ID encoding (`IdEncoder`)
 
-Integer primary keys for hotels, rooms, trips, transports, events, packages, partners, and bookings are not exposed as raw numbers on those resources. `IdEncoder` builds a URL-safe Base64 string of `{id}:PlazaInnKey2025` (UTF-8), then strips padding and replaces `+` with `-` and `/` with `_`.
+Integer primary keys for hotels, rooms, trips, transports, events, packages, partners, and bookings are not exposed as raw numbers on those resources or on the admin dashboard. `IdEncoder` builds a URL-safe Base64 string of `{id}:PlazaInnKey2025` (UTF-8), then strips padding and replaces `+` with `-` and `/` with `_`.
 
 Example: database id `1` encodes to `MTpQbGF6YUlubktleTIwMjU`.
 
@@ -293,7 +293,7 @@ The guest opens `paymentUrl` and pays.
 - `[Authorize]`: any valid JWT (`Admin`, `Client`, or `User`).
 - `[Authorize(Roles = "Admin")]`: JWT whose `role` claim is `Admin`. A valid token with another role receives **403** with an empty body (the framework challenge), not `ProblemDetails`.
 
-Class-level `[Authorize(Roles = "Admin")]` is the default for Hotel, Room, InsightHotel, Partner, User, Trip, Transport, Event, Package, and File. Methods marked `[AllowAnonymous]` override that for public reads.
+Class-level `[Authorize(Roles = "Admin")]` is the default for Hotel, Room, InsightHotel, Partner, User, Trip, Transport, Event, Package, File, and AdminDashboard. Methods marked `[AllowAnonymous]` override that for public reads.
 
 **Enums in JSON bodies are integers.** There is no `JsonStringEnumConverter`. A string such as `"Hotel"` fails JSON deserialization with **400**. Query-string model binding does accept names (`?status=Pending`, `?bookingType=Trip`, `?type=trip`).
 
@@ -1852,6 +1852,132 @@ Auth: Admin. Body: `UpdateSectionImagesDto`. Every image currently of that type 
 
 ---
 
+### 3.17 Admin dashboard — `GET /api/AdminDashboard/summary`
+
+Auth: Admin (`[Authorize(Roles = "Admin")]`). One read-only payload for the Angular admin home. The body is `AdminDashboardSummaryDTO` itself. It is not wrapped in `{ "success": true, "data": ... }`.
+
+```http
+GET /api/AdminDashboard/summary
+GET /api/AdminDashboard/summary?fromDate=2026-01-01&toDate=2026-10-28
+Authorization: Bearer <admin token>
+```
+
+| Query | Meaning |
+| --- | --- |
+| `fromDate` | Optional. Inclusive start. A date-only value such as `2026-01-01` is midnight UTC on that calendar day. |
+| `toDate` | Optional. Inclusive end. A date-only value includes the whole calendar day (`toDate=2026-10-28` keeps bookings through `2026-10-28T23:59:59.9999999Z`). A value that includes a time is an inclusive instant. |
+
+Send `yyyy-MM-dd` or a UTC ISO-8601 instant. A value with no offset is treated as UTC and is not shifted by the server timezone. `fromDate` later than `toDate` returns **400** `ProblemDetails` with `detail` `"fromDate must be on or before toDate."` Missing or invalid JWT: **401** empty body. A valid non-admin token: **403** empty body.
+
+The activity date of a booking is `serviceDate` when that column is set (trips, transports, events, and dated packages). Hotel bookings have no `serviceDate`, so the filter uses `createdAt`. `totalUsers` and `catalogCounts` are a current snapshot and ignore the date filter. `lowCapacityAlerts` is current inventory and also ignores the date filter.
+
+When both dates are omitted, KPIs, revenue, top performers, and recent bookings are all-time, and `monthlyTrends` is the current UTC month plus the previous 11 months (zero-filled). When only `toDate` is set, KPIs include every booking up to that date and the chart is the 12 months ending at `toDate`. When only `fromDate` is set, the chart runs from that month through the current month, or the next 12 months when `fromDate` is in the future. A range longer than 36 months keeps the latest 36 months on the chart; the KPI totals still use the full range.
+
+Money is rounded half away from zero to 2 decimal places. There is no `Completed` status and no `TaxAmount` column. Confirmed revenue is the sum of `totalPrice` for `Confirmed` bookings. Tax is derived from the tax-inclusive total and `Booking:TaxRate` (default `0.28`): `totalPrice * TaxRate / (1 + TaxRate)`. `revenueSharePercentage` is that type’s confirmed revenue divided by `kpis.totalConfirmedRevenue`. Shares are rounded to 2 decimals and the largest slice is adjusted so the five shares sum to `100.00` when revenue is positive.
+
+`pendingBookings` counts `Pending` rows still inside the payment hold (`createdAt` within `Booking:PendingExpiryMinutes`, default 30). `expiredBookings` counts `Pending` rows older than that hold. The cleanup job then sets those rows to `Cancelled`, so `expiredBookings` is the queue still waiting to be swept, not a history of every hold that ever expired. `pendingRevenue` sums `totalPrice` for every `Pending` row, including holds the job has not cancelled yet. `cancelledBookings` is every `Cancelled` row.
+
+`catalogCounts.*.active` uses `isActive` for trips, transports, events, and packages. Hotels and rooms have no `isActive` flag, so `active` equals `total`.
+
+`revenueByServiceType` always contains these five objects, in this order: Hotel `0`, Trip `1`, Transport `2`, Event `3`, Package `4`. `bookingType` is the integer. `bookingTypeName` is the name.
+
+`topPerformers` lists at most five hotels, trips, transports, events, and packages, ordered by confirmed revenue, then by booking count. `bookingsCount` includes every status in the window. `totalRevenue` is confirmed only. `encodedId` is `IdEncoder` (the same token used by the catalog APIs). `topDestinations` is the top five locations by booking count: hotel city, trip city, event location, transport pickup, and the linked hotel city of a package. Locations are trimmed and merged case-insensitively.
+
+`operationalInsights.recentBookings` is the latest 10 bookings in the selected window (`createdAt` descending). `bookingReference` is `paymentReference`, otherwise `merchantOrderId`, otherwise the same `encodedId`. `status` is `Pending`, `Confirmed`, `Cancelled`, or `Expired`. `Expired` is only a display value for a pending hold past the payment window. Do not send it to `GET /api/admin/bookings?status=`. `paymentStatus` is `Paid` or `Unpaid` from `isPaid`. Hotel `itemName` is `"{hotel} - {room}"` when both names exist.
+
+`lowCapacityAlerts` warns when remaining inventory is `<= 5`. Events use `totalTickets` minus ticket `quantity`. Packages use `maxPackagesAvailable` minus package `quantity`. Trips use `maxCapacity` minus `adults + children` for each service date from today onward. Confirmed bookings and pending bookings still inside the hold consume inventory. Cancelled bookings and expired holds do not. Active events, packages, and trips whose cap is already `<= 5` and which have no consuming booking are included with `booked: 0`. Past items (`endDate` before today) are omitted. `serviceDate` is the event date, the package start, or the trip day. It is null for a trip whose daily cap is low but which has no upcoming booked day. `itemType` is `Event`, `Package`, or `Trip`. The list is capped at 20 rows, lowest remaining first. Use `encodedId` with the matching catalog GET.
+
+`monthlyTrends[].periodLabel` is `yyyy-MM`. Months with no bookings are included with zeros.
+
+200 (chart shortened to two months; an unfiltered call returns 12):
+
+```json
+{
+  "kpis": {
+    "totalConfirmedRevenue": 30336.00,
+    "totalTaxCollected": 6636.00,
+    "pendingRevenue": 5120.00,
+    "totalBookings": 18,
+    "confirmedBookings": 12,
+    "pendingBookings": 3,
+    "cancelledBookings": 2,
+    "expiredBookings": 1,
+    "totalUsers": 40,
+    "catalogCounts": {
+      "hotels": { "active": 4, "total": 4 },
+      "rooms": { "active": 12, "total": 12 },
+      "trips": { "active": 6, "total": 8 },
+      "transports": { "active": 5, "total": 7 },
+      "events": { "active": 3, "total": 4 },
+      "packages": { "active": 2, "total": 3 }
+    }
+  },
+  "revenueByServiceType": [
+    { "bookingType": 0, "bookingTypeName": "Hotel", "bookingsCount": 6, "confirmedCount": 4, "revenue": 11520.00, "taxAmount": 2520.00, "revenueSharePercentage": 37.96 },
+    { "bookingType": 1, "bookingTypeName": "Trip", "bookingsCount": 4, "confirmedCount": 3, "revenue": 4992.00, "taxAmount": 1092.00, "revenueSharePercentage": 16.46 },
+    { "bookingType": 2, "bookingTypeName": "Transport", "bookingsCount": 3, "confirmedCount": 2, "revenue": 1024.00, "taxAmount": 224.00, "revenueSharePercentage": 3.38 },
+    { "bookingType": 3, "bookingTypeName": "Event", "bookingsCount": 3, "confirmedCount": 2, "revenue": 1280.00, "taxAmount": 280.00, "revenueSharePercentage": 4.22 },
+    { "bookingType": 4, "bookingTypeName": "Package", "bookingsCount": 2, "confirmedCount": 1, "revenue": 11520.00, "taxAmount": 2520.00, "revenueSharePercentage": 37.98 }
+  ],
+  "monthlyTrends": [
+    { "year": 2026, "month": 9, "periodLabel": "2026-09", "bookingsCount": 7, "confirmedRevenue": 12800.00 },
+    { "year": 2026, "month": 10, "periodLabel": "2026-10", "bookingsCount": 11, "confirmedRevenue": 17536.00 }
+  ],
+  "topPerformers": {
+    "hotels": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Nile Plaza", "bookingsCount": 6, "totalRevenue": 11520.00 }
+    ],
+    "trips": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Luxor Day Trip", "bookingsCount": 4, "totalRevenue": 4992.00 }
+    ],
+    "transports": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Airport Sedan", "bookingsCount": 3, "totalRevenue": 1024.00 }
+    ],
+    "events": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Sound and Light", "bookingsCount": 3, "totalRevenue": 1280.00 }
+    ],
+    "packages": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Cairo Long Weekend", "bookingsCount": 2, "totalRevenue": 11520.00 }
+    ],
+    "topDestinations": [
+      { "location": "Cairo", "bookingsCount": 8, "totalRevenue": 23040.00 }
+    ]
+  },
+  "operationalInsights": {
+    "recentBookings": [
+      {
+        "encodedId": "MTpQbGF6YUlubktleTIwMjU",
+        "bookingReference": "PLZ-1-0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "userName": "Sara Hassan",
+        "email": "sara@example.com",
+        "bookingType": 0,
+        "bookingTypeName": "Hotel",
+        "itemName": "Nile Plaza - Deluxe Double",
+        "totalPrice": 5120.00,
+        "status": "Confirmed",
+        "paymentStatus": "Paid",
+        "createdAt": "2026-10-28T18:04:11Z"
+      }
+    ],
+    "lowCapacityAlerts": [
+      {
+        "encodedId": "MTpQbGF6YUlubktleTIwMjU",
+        "itemType": "Event",
+        "name": "Sound and Light",
+        "capacity": 40,
+        "booked": 36,
+        "remaining": 4,
+        "serviceDate": "2026-11-20T00:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+Each top-performer list contains up to five objects. The sample shows one. Call the catalog GET with `encodedId` (`GET /api/Hotel/{encodedId}`, and the Trip, Transport, Event, and Package equivalents).
+
+---
+
 ## 4. 5 Ready-to-Test Booking Payloads / أمثلة عملية جاهزة للحجز للـ 5 أنواع
 
 All five calls are:
@@ -2059,6 +2185,7 @@ Keys inside `errors` are the C# property names (PascalCase).
 Success wrappers to handle explicitly:
 
 - Bookings and availability: `{ "success": true, "data": ... }`
+- Admin dashboard `GET /api/AdminDashboard/summary`: the `AdminDashboardSummaryDTO` object itself (no `success` wrapper)
 - Payment initiate: `{ paymentUrl, paymobOrderId, amountCents, currency }`
 - Payment check-order: snake_case fields `payment_status`, `is_paid`, `amount_cents`, `booking_confirmed`
 - Many admin writes: **204** with an empty body

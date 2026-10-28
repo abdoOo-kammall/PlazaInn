@@ -26,6 +26,7 @@ namespace PlazaCore.Entites
         public int NumOfAvailableRoomsToReserve { get; set; }
         public int NumOfAvailableSuitesToReserve { get; set; }
         public double Rating { get; set; }
+        public string? PriceRange { get; set; }
         // socail media 
         public string? Instagram {  get; set; }
         public string? Facebook { get; set; }

@@ -13,6 +13,7 @@ namespace PlazaRepository.Config
             builder.Property(p => p.Description).IsRequired().HasMaxLength(4000);
             builder.Property(p => p.DescriptionAr).IsRequired().HasMaxLength(4000);
             builder.Property(p => p.PackagePrice).HasPrecision(18, 2);
+            builder.Property(p => p.PriceRange).HasMaxLength(200);
             builder.Property(p => p.IsActive).HasDefaultValue(true);
 
             builder.HasOne(p => p.Hotel)

@@ -15,6 +15,7 @@ namespace PlazaRepository.Config
             builder.Property(e => e.Location).IsRequired().HasMaxLength(250);
             builder.Property(e => e.LocationAr).IsRequired().HasMaxLength(250);
             builder.Property(e => e.TicketPrice).HasPrecision(18, 2);
+            builder.Property(e => e.PriceRange).HasMaxLength(200);
             builder.Property(e => e.IsActive).HasDefaultValue(true);
 
             builder.HasIndex(e => e.IsActive);

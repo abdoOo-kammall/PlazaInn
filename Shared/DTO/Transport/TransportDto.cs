@@ -18,6 +18,7 @@ namespace Shared.DTO.Transport
         public int MaxPassengers { get; set; }
         public int MaxLuggage { get; set; }
         public decimal PricePerTrip { get; set; }
+        public string? PriceRange { get; set; }
         public int AvailableVehicles { get; set; }
         public bool IsActive { get; set; }
         public List<FileDto> Images { get; set; } = new();

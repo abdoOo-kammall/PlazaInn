@@ -9,7 +9,7 @@ namespace PlazaCore.ServiceContract
 {
     public interface IHotelService
     {
-        Task<IEnumerable<Hotel>> GetAllHotelsAsync();
+        Task<IEnumerable<Hotel>> GetAllHotelsAsync(decimal? minPrice = null, decimal? maxPrice = null);
         Task<Hotel?> GetHotelAsync(int id);
         Task<IReadOnlyList<Hotel>> GetHotelsByIdsAsync(IReadOnlyCollection<int> ids);
 

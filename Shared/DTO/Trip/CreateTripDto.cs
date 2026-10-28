@@ -48,6 +48,9 @@ namespace Shared.DTO.Trip
         [Range(typeof(decimal), "0.01", "999999999999.99", ErrorMessage = "Price per child must be greater than 0")]
         public decimal PricePerChild { get; set; }
 
+        [StringLength(200, ErrorMessage = "Price range cannot exceed 200 characters")]
+        public string? PriceRange { get; set; }
+
         [Range(1, 100000, ErrorMessage = "Max capacity must be at least 1")]
         public int MaxCapacity { get; set; }
 

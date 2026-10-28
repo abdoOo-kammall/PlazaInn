@@ -21,5 +21,18 @@ namespace PlazaCore.Specification.HotelSpecification
             AddInclude(x => x.InsightHotel);
 
         }
+
+        public HotelWithImagesAndRoomsSpec(decimal? minPrice, decimal? maxPrice)
+        {
+            AddInclude(x => x.Rooms);
+            AddInclude(x => x.InsightHotel);
+
+            if (minPrice != null && maxPrice != null)
+                Criteria = hotel => hotel.Rooms.Any(room => room.PricePerNight >= minPrice && room.PricePerNight <= maxPrice);
+            else if (minPrice != null)
+                Criteria = hotel => hotel.Rooms.Any(room => room.PricePerNight >= minPrice);
+            else if (maxPrice != null)
+                Criteria = hotel => hotel.Rooms.Any(room => room.PricePerNight <= maxPrice);
+        }
     }
 }

@@ -19,6 +19,7 @@ namespace PlazaRepository.Config
             builder.Property(t => t.DropoffLocation).IsRequired().HasMaxLength(250);
             builder.Property(t => t.DropoffLocationAr).IsRequired().HasMaxLength(250);
             builder.Property(t => t.PricePerTrip).HasPrecision(18, 2);
+            builder.Property(t => t.PriceRange).HasMaxLength(200);
             builder.Property(t => t.IsActive).HasDefaultValue(true);
 
             builder.HasIndex(t => t.IsActive);

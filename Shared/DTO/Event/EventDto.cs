@@ -14,6 +14,7 @@ namespace Shared.DTO.Event
         public DateTime EventDate { get; set; }
         public DateTime? EndDate { get; set; }
         public decimal TicketPrice { get; set; }
+        public string? PriceRange { get; set; }
         public int TotalTickets { get; set; }
         public bool IsActive { get; set; }
         public List<FileDto> Images { get; set; } = new();

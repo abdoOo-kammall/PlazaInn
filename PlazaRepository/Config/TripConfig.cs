@@ -18,6 +18,7 @@ namespace PlazaRepository.Config
             builder.Property(t => t.ItineraryAr).IsRequired().HasMaxLength(8000);
             builder.Property(t => t.PricePerPerson).HasPrecision(18, 2);
             builder.Property(t => t.PricePerChild).HasPrecision(18, 2);
+            builder.Property(t => t.PriceRange).HasMaxLength(200);
             builder.Property(t => t.IsActive).HasDefaultValue(true);
 
             builder.HasIndex(t => t.IsActive);

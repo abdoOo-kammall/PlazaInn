@@ -54,6 +54,9 @@ namespace Shared.DTO.Hotel
         public int NumOfAvailableRoomsToReserve { get; set; } = 0;
         public int NumOfAvailableSuitesToReserve { get; set; } = 0;
         public double Rating { get; set; } = 0;
+
+        [StringLength(200, ErrorMessage = "Price range cannot exceed 200 characters")]
+        public string? PriceRange { get; set; }
         // socail media 
         public string? Instagram { get; set; }
         public string? Facebook { get; set; }

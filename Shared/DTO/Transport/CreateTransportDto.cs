@@ -53,6 +53,9 @@ namespace Shared.DTO.Transport
         [Range(typeof(decimal), "0.01", "999999999999.99", ErrorMessage = "Price per trip must be greater than 0")]
         public decimal PricePerTrip { get; set; }
 
+        [StringLength(200, ErrorMessage = "Price range cannot exceed 200 characters")]
+        public string? PriceRange { get; set; }
+
         [Range(1, 100000, ErrorMessage = "Available vehicles must be at least 1")]
         public int AvailableVehicles { get; set; }
 

@@ -32,6 +32,7 @@ namespace Shared.DTO.Hotel
 
         //  Hotel Rating
         public double Rating { get; set; }
+        public string? PriceRange { get; set; }
 
         // socail media 
         public string? Instagram { get; set; }

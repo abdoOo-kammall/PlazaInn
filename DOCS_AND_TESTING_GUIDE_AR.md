@@ -155,7 +155,7 @@ Swagger لهذا الملف: `https://localhost:7142/swagger`.
 
 ### 2.2 تشفير المعرّفات (`IdEncoder`)
 
-المفاتيح الأساسية الصحيحة للفنادق والغرف والرحلات والنقل والفعاليات والباقات والشركاء والحجوزات لا تُعرض كأرقام خام على هذه الموارد. `IdEncoder` يبني نص Base64 آمناً لعناوين URL من `{id}:PlazaInnKey2025` (UTF-8)، ثم يحذف الحشو ويستبدل `+` بـ `-` و `/` بـ `_`.
+المفاتيح الأساسية الصحيحة للفنادق والغرف والرحلات والنقل والفعاليات والباقات والشركاء والحجوزات لا تُعرض كأرقام خام على هذه الموارد ولا على لوحة تحليلات المدير. `IdEncoder` يبني نص Base64 آمناً لعناوين URL من `{id}:PlazaInnKey2025` (UTF-8)، ثم يحذف الحشو ويستبدل `+` بـ `-` و `/` بـ `_`.
 
 مثال: معرّف قاعدة البيانات `1` يُشفَّر إلى `MTpQbGF6YUlubktleTIwMjU`.
 
@@ -293,7 +293,7 @@ Swagger لهذا الملف: `https://localhost:7142/swagger`.
 - `[Authorize]`: أي JWT صالح (`Admin` أو `Client` أو `User`).
 - `[Authorize(Roles = "Admin")]`: JWT مطالبة `role` فيه هي `Admin`. الرمز الصالح بدور آخر يحصل على **403** بجسم فارغ (تحدي الإطار)، وليس `ProblemDetails`.
 
-`[Authorize(Roles = "Admin")]` على مستوى الصنف هو الافتراضي لـ Hotel و Room و InsightHotel و Partner و User و Trip و Transport و Event و Package و File. الدوال المعلَّمة بـ `[AllowAnonymous]` تتجاوز ذلك للقراءات العامة.
+`[Authorize(Roles = "Admin")]` على مستوى الصنف هو الافتراضي لـ Hotel و Room و InsightHotel و Partner و User و Trip و Transport و Event و Package و File و AdminDashboard. الدوال المعلَّمة بـ `[AllowAnonymous]` تتجاوز ذلك للقراءات العامة.
 
 **قيم الـ Enum في أجسام JSON أرقام صحيحة.** لا يوجد `JsonStringEnumConverter`. نص مثل `"Hotel"` يفشل في فك JSON ويعيد **400**. ربط معاملات الاستعلام يقبل الأسماء (`?status=Pending` و `?bookingType=Trip` و `?type=trip`).
 
@@ -1852,6 +1852,132 @@ curl -X POST "http://localhost:5141/api/Partner/broadcastEmail/hotel/MTpQbGF6YUl
 
 ---
 
+### 3.17 لوحة تحليلات المدير — `GET /api/AdminDashboard/summary`
+
+التفويض: Admin (`[Authorize(Roles = "Admin")]`). حمولة واحدة للقراءة فقط لصفحة المدير في Angular. الجسم هو `AdminDashboardSummaryDTO` نفسه، وليس مغلوفاً في `{ "success": true, "data": ... }`.
+
+```http
+GET /api/AdminDashboard/summary
+GET /api/AdminDashboard/summary?fromDate=2026-01-01&toDate=2026-10-28
+Authorization: Bearer <admin token>
+```
+
+| الاستعلام | المعنى |
+| --- | --- |
+| `fromDate` | اختياري. بداية شاملة. القيمة التاريخية فقط مثل `2026-01-01` هي منتصف الليل UTC في ذلك اليوم. |
+| `toDate` | اختياري. نهاية شاملة. القيمة التاريخية فقط تضم اليوم كاملاً (`toDate=2026-10-28` يُبقي الحجوزات حتى `2026-10-28T23:59:59.9999999Z`). القيمة التي تحمل وقتاً هي لحظة شاملة. |
+
+أرسِل `yyyy-MM-dd` أو لحظة ISO-8601 بتوقيت UTC. القيمة بلا إزاحة تُعامَل كـ UTC ولا يزيحها توقيت الخادم. إذا كان `fromDate` بعد `toDate` فالاستجابة **400** من نوع `ProblemDetails` و `detail` هو `"fromDate must be on or before toDate."` JWT مفقود أو غير صالح: **401** بجسم فارغ. رمز صالح لغير المدير: **403** بجسم فارغ.
+
+تاريخ النشاط للحجز هو `serviceDate` عندما يكون العمود موجوداً (الرحلات والنقل والفعاليات والباقات المؤرخة). حجوزات الفندق بلا `serviceDate`، لذلك يستخدم المرشح `createdAt`. `totalUsers` و `catalogCounts` لقطة حالية ويتجاهلان مرشح التاريخ. `lowCapacityAlerts` مخزون حالي ويتجاهل مرشح التاريخ أيضاً.
+
+عند حذف التاريخين، مؤشرات الأداء والإيراد والأفضل أداءً والحجوزات الأخيرة تكون لكل الوقت، و `monthlyTrends` هو شهر UTC الحالي مع الـ 11 شهراً السابقة (الأشهر الفارغة تُملأ بأصفار). عند إرسال `toDate` فقط، المؤشرات تضم كل حجز حتى ذلك التاريخ والرسم هو 12 شهراً تنتهي عند `toDate`. عند إرسال `fromDate` فقط، الرسم يمتد من ذلك الشهر حتى الشهر الحالي، أو الـ 12 شهراً التالية إذا كان `fromDate` في المستقبل. المدى الأطول من 36 شهراً يُبقي أحدث 36 شهراً في الرسم؛ مجاميع المؤشرات تبقى على المدى الكامل.
+
+المبالغ تُقرَّب نصفها بعيداً عن الصفر إلى منزلتين. لا توجد حالة `Completed` ولا عمود `TaxAmount`. إيراد التأكيد هو مجموع `totalPrice` لحجوزات `Confirmed`. الضريبة مشتقة من الإجمالي الشامل للضريبة ومن `Booking:TaxRate` (الافتراضي `0.28`): `totalPrice * TaxRate / (1 + TaxRate)`. `revenueSharePercentage` هي إيراد النوع المؤكد مقسوماً على `kpis.totalConfirmedRevenue`. النسب تُقرَّب إلى منزلتين، وتُعدَّل أكبر شريحة حتى يصبح مجموع الحصص الخمس `100.00` عندما يكون الإيراد موجباً.
+
+`pendingBookings` يعد صفوف `Pending` التي ما زالت داخل مهلة الدفع (`createdAt` ضمن `Booking:PendingExpiryMinutes`، الافتراضي 30). `expiredBookings` يعد صفوف `Pending` الأقدم من هذه المهلة. مهمة التنظيف تحوّل هذه الصفوف بعدها إلى `Cancelled`، لذلك `expiredBookings` هو الطابور الذي لم يُمسح بعد، وليس تاريخ كل مهلة انتهت سابقاً. `pendingRevenue` يجمع `totalPrice` لكل صف `Pending`، بما فيها المهل التي لم تلغِها المهمة بعد. `cancelledBookings` هو كل صف `Cancelled`.
+
+`catalogCounts.*.active` يستخدم `isActive` للرحلات والنقل والفعاليات والباقات. الفنادق والغرف بلا علامة `isActive`، لذلك `active` يساوي `total`.
+
+`revenueByServiceType` يحتوي دائماً هذه الكائنات الخمسة بهذا الترتيب: Hotel `0` و Trip `1` و Transport `2` و Event `3` و Package `4`. `bookingType` هو العدد الصحيح. `bookingTypeName` هو الاسم.
+
+`topPerformers` يعرض خمسة على الأكثر من الفنادق والرحلات والنقل والفعاليات والباقات، مرتبة بإيراد التأكيد ثم بعدد الحجوزات. `bookingsCount` يضم كل الحالات داخل النافذة. `totalRevenue` للمؤكد فقط. `encodedId` من `IdEncoder` (نفس الرمز الذي تستخدمه واجهات الكتالوج). `topDestinations` هو أفضل خمس مواقع بعدد الحجوزات: مدينة الفندق، ومدينة الرحلة، وموقع الفعالية، ونقطة انطلاق النقل، ومدينة فندق الباقة المرتبط. المواقع تُقص وتُدمج دون حساسية لحالة الأحرف.
+
+`operationalInsights.recentBookings` هو أحدث 10 حجوزات في النافذة المختارة (`createdAt` تنازلياً). `bookingReference` هو `paymentReference`، وإلا `merchantOrderId`، وإلا نفس `encodedId`. `status` هو `Pending` أو `Confirmed` أو `Cancelled` أو `Expired`. `Expired` قيمة عرض فقط لمهلة `Pending` تجاوزت نافذة الدفع. لا ترسلها إلى `GET /api/admin/bookings?status=`. `paymentStatus` هو `Paid` أو `Unpaid` من `isPaid`. `itemName` للفندق هو `"{hotel} - {room}"` عندما يوجد الاسمان.
+
+`lowCapacityAlerts` ينبّه عندما يتبقى من المخزون `<= 5`. الفعاليات تستخدم `totalTickets` ناقص `quantity` للتذاكر. الباقات تستخدم `maxPackagesAvailable` ناقص `quantity`. الرحلات تستخدم `maxCapacity` ناقص `adults + children` لكل تاريخ خدمة من اليوم فصاعداً. الحجوزات المؤكدة والمعلقة التي ما زالت داخل المهلة تستهلك المخزون. الملغاة والمهل المنتهية لا تستهلكه. الفعاليات والباقات والرحلات النشطة التي سقفها أصلاً `<= 5` وليس لها حجز مستهلك تُدرج مع `booked: 0`. العناصر الماضية (`endDate` قبل اليوم) تُستبعد. `serviceDate` هو تاريخ الفعالية أو بداية الباقة أو يوم الرحلة. يكون null لرحلة سقفها اليومي منخفض وليس لها يوم محجوز قادم. `itemType` هو `Event` أو `Package` أو `Trip`. القائمة بحد أقصى 20 صفاً، الأقل تبقياً أولاً. استخدم `encodedId` مع GET الكتالوج المقابل.
+
+`monthlyTrends[].periodLabel` بالشكل `yyyy-MM`. الأشهر بلا حجوزات تُدرج بأصفار.
+
+200 (الرسم مختصر لشهرين؛ الاستدعاء بلا تاريخ يعيد 12 شهراً):
+
+```json
+{
+  "kpis": {
+    "totalConfirmedRevenue": 30336.00,
+    "totalTaxCollected": 6636.00,
+    "pendingRevenue": 5120.00,
+    "totalBookings": 18,
+    "confirmedBookings": 12,
+    "pendingBookings": 3,
+    "cancelledBookings": 2,
+    "expiredBookings": 1,
+    "totalUsers": 40,
+    "catalogCounts": {
+      "hotels": { "active": 4, "total": 4 },
+      "rooms": { "active": 12, "total": 12 },
+      "trips": { "active": 6, "total": 8 },
+      "transports": { "active": 5, "total": 7 },
+      "events": { "active": 3, "total": 4 },
+      "packages": { "active": 2, "total": 3 }
+    }
+  },
+  "revenueByServiceType": [
+    { "bookingType": 0, "bookingTypeName": "Hotel", "bookingsCount": 6, "confirmedCount": 4, "revenue": 11520.00, "taxAmount": 2520.00, "revenueSharePercentage": 37.96 },
+    { "bookingType": 1, "bookingTypeName": "Trip", "bookingsCount": 4, "confirmedCount": 3, "revenue": 4992.00, "taxAmount": 1092.00, "revenueSharePercentage": 16.46 },
+    { "bookingType": 2, "bookingTypeName": "Transport", "bookingsCount": 3, "confirmedCount": 2, "revenue": 1024.00, "taxAmount": 224.00, "revenueSharePercentage": 3.38 },
+    { "bookingType": 3, "bookingTypeName": "Event", "bookingsCount": 3, "confirmedCount": 2, "revenue": 1280.00, "taxAmount": 280.00, "revenueSharePercentage": 4.22 },
+    { "bookingType": 4, "bookingTypeName": "Package", "bookingsCount": 2, "confirmedCount": 1, "revenue": 11520.00, "taxAmount": 2520.00, "revenueSharePercentage": 37.98 }
+  ],
+  "monthlyTrends": [
+    { "year": 2026, "month": 9, "periodLabel": "2026-09", "bookingsCount": 7, "confirmedRevenue": 12800.00 },
+    { "year": 2026, "month": 10, "periodLabel": "2026-10", "bookingsCount": 11, "confirmedRevenue": 17536.00 }
+  ],
+  "topPerformers": {
+    "hotels": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Nile Plaza", "bookingsCount": 6, "totalRevenue": 11520.00 }
+    ],
+    "trips": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Luxor Day Trip", "bookingsCount": 4, "totalRevenue": 4992.00 }
+    ],
+    "transports": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Airport Sedan", "bookingsCount": 3, "totalRevenue": 1024.00 }
+    ],
+    "events": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Sound and Light", "bookingsCount": 3, "totalRevenue": 1280.00 }
+    ],
+    "packages": [
+      { "encodedId": "MTpQbGF6YUlubktleTIwMjU", "name": "Cairo Long Weekend", "bookingsCount": 2, "totalRevenue": 11520.00 }
+    ],
+    "topDestinations": [
+      { "location": "Cairo", "bookingsCount": 8, "totalRevenue": 23040.00 }
+    ]
+  },
+  "operationalInsights": {
+    "recentBookings": [
+      {
+        "encodedId": "MTpQbGF6YUlubktleTIwMjU",
+        "bookingReference": "PLZ-1-0f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "userName": "Sara Hassan",
+        "email": "sara@example.com",
+        "bookingType": 0,
+        "bookingTypeName": "Hotel",
+        "itemName": "Nile Plaza - Deluxe Double",
+        "totalPrice": 5120.00,
+        "status": "Confirmed",
+        "paymentStatus": "Paid",
+        "createdAt": "2026-10-28T18:04:11Z"
+      }
+    ],
+    "lowCapacityAlerts": [
+      {
+        "encodedId": "MTpQbGF6YUlubktleTIwMjU",
+        "itemType": "Event",
+        "name": "Sound and Light",
+        "capacity": 40,
+        "booked": 36,
+        "remaining": 4,
+        "serviceDate": "2026-11-20T00:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+كل قائمة في الأفضل أداءً تحتوي حتى خمسة كائنات. العينة تعرض واحداً. استدعِ GET الكتالوج بـ `encodedId` (`GET /api/Hotel/{encodedId}`، وما يقابلها لـ Trip و Transport و Event و Package).
+
+---
+
 ## 4. 5 Ready-to-Test Booking Payloads / أمثلة عملية جاهزة للحجز للـ 5 أنواع
 
 الاستدعاءات الخمسة كلها:
@@ -2059,6 +2185,7 @@ Authorization: Bearer <token>
 أغلفة النجاح التي يجب معالجتها صراحة:
 
 - الحجوزات والتوفر: `{ "success": true, "data": ... }`
+- لوحة المدير `GET /api/AdminDashboard/summary`: كائن `AdminDashboardSummaryDTO` نفسه (بدون غلاف `success`)
 - بدء الدفع: `{ paymentUrl, paymobOrderId, amountCents, currency }`
 - فحص الطلب: حقول snake_case هي `payment_status` و `is_paid` و `amount_cents` و `booking_confirmed`
 - كثير من كتابات المدير: **204** بجسم فارغ
